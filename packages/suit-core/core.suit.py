@@ -1,6 +1,6 @@
-from suit import suit, Runtime, Scope
+from suit import Runtime, Scope, suit
 
 
 @suit("lint")
 def lint(runtime: Runtime, scope: Scope):
-    runtime.log("linting here")
+    runtime.debug("linting here")

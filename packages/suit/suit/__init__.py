@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 import pathlib
 from dataclasses import dataclass
 from typing import List, Optional, Protocol, runtime_checkable
@@ -34,6 +33,7 @@ registered = _SuitRegistry()
 
 @dataclass(frozen=True)
 class Scope:
+    target: str
     local: pathlib.Path
     root: pathlib.Path
 

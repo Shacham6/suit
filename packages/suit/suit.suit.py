@@ -8,6 +8,9 @@ from suit import Runtime, Scope, suit
 
 @suit("lint")
 def target_lint(runtime: Runtime, scope: Scope):
-    runtime.log("Linting using `black`...")
+    runtime.debug("Linting using `black`...")
     res = runtime.shell(["black", "--check", str(scope.local / "suit")])
-    runtime.log(Panel(res.stderr.decode("utf-8").strip(), title="`black` [b red]errors![/]"))
+    if res.returncode != 0:
+        runtime.print(Panel(res.stderr.decode("utf-8").strip(), title="`black` [b red]errors![/]"))
+        res.check_returncode()
+        # res.check_returncode()
