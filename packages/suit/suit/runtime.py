@@ -17,6 +17,7 @@ from rich.padding import Padding
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+from rich.traceback import Traceback
 
 from .scope import Scope
 
@@ -50,6 +51,8 @@ rich.traceback.install(console=console)
 class RicherHandler(logbook.Handler):
 
     def emit(self, record: logbook.LogRecord):
+        # if isinstance(record.message, Exception):
+        #     return
         g = Table.grid(padding=(0, 1))
         g.add_row(
             Text.assemble(
@@ -59,9 +62,9 @@ class RicherHandler(logbook.Handler):
             "|",
             record.extra.get("scope", "[b]root[/]"),
             "|",
-            Text.assemble((record.level_name, self._level_style(record.level_name))),
+            Text.assemble((f"{record.level_name:<8}", self._level_style(record.level_name))),
             "]",
-            record.message,
+            str(record.message) if isinstance(record.message, Exception) else record.message,
         )
         console.print(g)
 
@@ -77,12 +80,6 @@ class RicherHandler(logbook.Handler):
 RicherHandler().push_application()
 
 
-class UI:
-
-    def __init__(self, scope: Scope):
-        self.__scope = scope
-
-
 class Runtime:
 
     def __init__(self, scope: Scope):
@@ -92,25 +89,7 @@ class Runtime:
         self.debug = self.__logger.debug
         self.warn = self.__logger.warn
         self.error = self.__logger.error
-
-    #     self.status = self.console.status
-    #     self.print = self.console.log
-    #     self.__logger = logging.getLogger("suit.core")
-    #     self.__logger.addHandler(
-    #         rich.logging.RichHandler(
-    #             console=self.console,
-    #             markup=True,
-    #             rich_tracebacks=True,
-    #             tracebacks_show_locals=True,
-    #             log_time_format=_format_time,
-    #         ))
-    #     self.debug = self.__logger.debug
-    #     self.error = self.__logger.error
-    #     self.warn = self.__logger.warn
-
-    # def info(self, *objects):
-    #     self.print("INFO", *objects)
-    # self.info = self.__logger.info
+        self.exception = self.__logger.exception
 
     def shell(self, command: Union[str, List[str], Tuple[str, ...]]):
         if isinstance(command, str):
@@ -119,14 +98,6 @@ class Runtime:
 
     def fail(self, message: str):
         raise TargetFailedException(message)
-
-    # @contextlib.contextmanager
-    # def _set_message_group(self, title: Union[str, Text]):
-    #     content_window = _PrintGroup(title)
-    #     with Live(content_window, console=self.console, refresh_per_second=2):
-    #         self.print = content_window.print
-    #         yield
-    #     self.print = self.console.print
 
 
 class TargetFailedException(Exception):

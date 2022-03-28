@@ -11,5 +11,6 @@ def target_lint(runtime: Runtime, scope: Scope):
     runtime.info("Linting using `black`...")
     res = runtime.shell(["black", "--check", str(scope.local / "suit")])
     if res.returncode != 0:
-        runtime.error(Panel(res.stderr.decode("utf-8").strip(), title="`black` [b red]errors![/]"))
-        res.check_returncode()
+        err_message = res.stderr.decode("utf-8").strip()
+        runtime.error(Panel(err_message, title="`black` [b red]errors![/]"))
+        runtime.fail("`black` returned with non-zero return code.")

@@ -38,6 +38,7 @@ def cli(rules: Tuple[str, ...]):
             try:
                 target.value.invoke(runtime, target_scope)
             except Exception as e:
+                runtime.exception(e)
                 failures.append((target, e))
 
 
