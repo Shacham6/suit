@@ -6,7 +6,7 @@ from typing import List, Optional, Protocol, runtime_checkable
 
 import rich.repr
 
-from suit_core.runtime import Runtime
+from suit.runtime import Runtime
 
 
 @rich.repr.auto()
