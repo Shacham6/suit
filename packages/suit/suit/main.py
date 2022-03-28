@@ -11,9 +11,9 @@ from rich.rule import Rule
 from rich.status import Status
 from rich.table import Table
 from rich.text import Text
-from suit.collector import collect
 
 from suit import Runtime, Scope
+from suit.collector import collect
 
 
 @click.command("suit")
@@ -41,12 +41,20 @@ def cli(rules: Tuple[str, ...]):
         except Exception as e:
             runtime.print(Text.assemble(("FAILURE", "b red"), " ", group_log_text))
             runtime.error(e)
-            failures.append((group_log_text, failures))
+            failures.append((group_log_text, e))
 
-        # errors_table = Table(show_header=False, box=rich.box.SIMPLE, show_lines=True)
-        # for target_failure, e in failures:
-        #     errors_table.add_row(target_failure, e)
-        # runtime.console.print(errors_table)
+        errors_table = Table(
+            "Group", "Failure",
+            show_header=True,
+            box=rich.box.ROUNDED,
+            show_lines=False,
+            show_edge=True,
+            show_footer=False,
+            title="[b red]Failures[/]",
+        )
+        for target_failure, e in failures:
+            errors_table.add_row(target_failure, str(e))
+        runtime.console.print(errors_table)
 
 
 def __filter_target_rules(rules, targets):
