@@ -13,4 +13,3 @@ def target_lint(runtime: Runtime, scope: Scope):
     if res.returncode != 0:
         runtime.print(Panel(res.stderr.decode("utf-8").strip(), title="`black` [b red]errors![/]"))
         res.check_returncode()
-        # res.check_returncode()
