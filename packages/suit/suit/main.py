@@ -1,5 +1,6 @@
 import fnmatch
 import itertools
+import pathlib
 import re
 from typing import Tuple
 
@@ -8,7 +9,7 @@ from rich.rule import Rule
 from rich.text import Text
 from suit_core.collector import collect
 
-from suit.runtime import Runtime
+from suit import Runtime, Scope
 
 
 @click.command("suit")
@@ -26,7 +27,10 @@ def cli(rules: Tuple[str, ...]):
                 ),
                 align="center",
             ))
-        target.value.invoke(runtime)
+        try:
+            target.value.invoke(runtime, Scope(target.filepath.parent, pathlib.Path.cwd()))
+        except Exception as e:
+            runtime.log(ej)
 
 
 def __filter_target_rules(rules, targets):

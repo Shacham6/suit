@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import importlib
-import importlib.metadata
-from typing import List, Optional
+import pathlib
+from dataclasses import dataclass
+from typing import List, Optional, Protocol, runtime_checkable
+
 import rich.repr
+
+from suit_core.runtime import Runtime
 
 
 @rich.repr.auto()
@@ -28,10 +32,23 @@ class _SuitRegistry:
 registered = _SuitRegistry()
 
 
+@dataclass(frozen=True)
+class Scope:
+    local: pathlib.Path
+    root: pathlib.Path
+
+
+@runtime_checkable
+class TargetFn(Protocol):
+
+    def __call__(self, runtime: Runtime, scope: Scope):
+        ...
+
+
 @rich.repr.auto()
 class SuitTarget:
 
-    def __init__(self, name: str, fn):
+    def __init__(self, name: str, fn: TargetFn):
         self.__name = name
         self.__fn = fn
 
@@ -40,11 +57,11 @@ class SuitTarget:
         return self.__name
 
     @property
-    def fn(self):
+    def fn(self) -> TargetFn:
         return self.__fn
 
-    def invoke(self, runtime):
-        self.__fn(runtime)
+    def invoke(self, runtime, scope: Scope):
+        return self.__fn(runtime, scope)
 
     def __rich_repr__(self):
         yield "name", self.__name
