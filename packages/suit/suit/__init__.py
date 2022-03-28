@@ -9,16 +9,16 @@ import rich.repr
 @rich.repr.auto()
 class _SuitRegistry:
 
-    def __init__(self, suits: Optional[List[_SuitTarget]] = None):
+    def __init__(self, suits: Optional[List[SuitTarget]] = None):
         if not suits:
             suits = []
         self.__suits = suits
 
     @property
-    def suits(self) -> List[_SuitTarget]:
+    def suits(self) -> List[SuitTarget]:
         return self.__suits
 
-    def add(self, suit: _SuitTarget) -> None:
+    def add(self, suit: SuitTarget) -> None:
         self.__suits.append(suit)
 
     def __rich_repr__(self):
@@ -29,7 +29,7 @@ registered = _SuitRegistry()
 
 
 @rich.repr.auto()
-class _SuitTarget:
+class SuitTarget:
 
     def __init__(self, name: str, fn):
         self.__name = name
@@ -53,7 +53,7 @@ class _SuitTarget:
 def suit(target_name: str):
 
     def __tmp(func):
-        target = _SuitTarget(target_name, func)
+        target = SuitTarget(target_name, func)
         registered.add(target)
         return target
 

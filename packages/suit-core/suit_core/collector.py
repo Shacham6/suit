@@ -44,7 +44,7 @@ def collect():
         node["__registered__"] = True
         module = SourceFileLoader(str(suit_file), str(suit_file)).load_module()
         for name, value in module.__dict__.items():
-            if not isinstance(value, suit._SuitTarget):
+            if not isinstance(value, suit.SuitTarget):
                 continue
             node[value.name] = {"__is_runnable__": True, "__filepath__": suit_file, "__value__": value}
     return list(collect_tree(tree))
