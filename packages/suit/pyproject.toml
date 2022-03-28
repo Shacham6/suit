@@ -1,0 +1,12 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "wheel"]
+
+# [tool.versioningit]
+# [tool.versioningit.vcs]
+# default-tag = "0.0.0"
+# match = ["pglearn-core/v*"]
+# method = "git"
+
+# [tool.versioningit.tag2version]
+# rmprefix = "pglearn-core/v"
