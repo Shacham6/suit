@@ -22,7 +22,7 @@ class Runtime:
             cwd = pathlib.Path.cwd()
         self.cwd = cwd
 
-        self.console = rich.console.Console(log_time_format=_format_time, stderr=True)
+        self.console = rich.console.Console(log_time_format=_format_time)
         self.status = self.console.status
         self.print = self.console.log
         self.__logger = logging.getLogger("suit.core")
