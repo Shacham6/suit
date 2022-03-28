@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import pathlib
-from dataclasses import dataclass
 from typing import List, Optional, Protocol, runtime_checkable
 
 import rich.repr
 
 from suit.runtime import Runtime
+
+from .scope import Scope
 
 
 @rich.repr.auto()
@@ -29,13 +29,6 @@ class _SuitRegistry:
 
 
 registered = _SuitRegistry()
-
-
-@dataclass(frozen=True)
-class Scope:
-    target: str
-    local: pathlib.Path
-    root: pathlib.Path
 
 
 @runtime_checkable

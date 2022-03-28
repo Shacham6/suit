@@ -1,3 +1,4 @@
+import contextlib
 import fnmatch
 import itertools
 import pathlib
@@ -5,48 +6,51 @@ import re
 from typing import Tuple
 
 import click
+import logbook
 import rich.box
+from rich.console import Group
 from rich.live import Live
+from rich.panel import Panel
 from rich.rule import Rule
 from rich.status import Status
 from rich.table import Table
 from rich.text import Text
 
-from suit import Runtime, Scope
 from suit.collector import collect
+
+from .runtime import Runtime
+from .scope import Scope
 
 
 @click.command("suit")
 @click.argument("rules", nargs=-1, type=str)
 def cli(rules: Tuple[str, ...]):
     targets = list(collect())
-    runtime = Runtime()
     failures = []
     for target in __filter_target_rules(rules, targets):
-        group_log_text = Text.assemble(
-            "[",
-            Text.assemble((":", "dim"),
-                          style="italic").join(Text.assemble((l, "yellow")) for l in target.fullname.split(":")), "]")
-        try:
-            with runtime._set_message_group(group_log_text):
-                target.value.invoke(runtime, Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd()))
-        except Exception as e:
-            runtime.print(Text.assemble(("FAILURE", "b red"), " ", group_log_text))
-            runtime.error(e)
-            failures.append((group_log_text, e))
+        target_scope = Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd())
+        runtime = Runtime(target_scope)
 
-        errors_table = Table(
-            "Group", "Failure",
-            show_header=True,
-            box=rich.box.ROUNDED,
-            show_lines=False,
-            show_edge=True,
-            show_footer=False,
-            title="[b red]Failures[/]",
-        )
-        for target_failure, e in failures:
-            errors_table.add_row(target_failure, str(e))
-        runtime.console.print(errors_table)
+        group_log_text = Text.assemble(
+            Text.assemble((":", "dim"),
+                          style="italic").join(Text.assemble((l, "yellow")) for l in target.fullname.split(":")),)
+        with _push_extras(scope=group_log_text):
+            try:
+                target.value.invoke(runtime, target_scope)
+            except Exception as e:
+                failures.append((target, e))
+
+
+@contextlib.contextmanager
+def _push_extras(**extras):
+
+    def _tmp(record: logbook.LogRecord):
+        nonlocal extras
+        for k, v in extras.items():
+            record.extra[k] = v
+
+    with logbook.Processor(_tmp) as a:
+        yield a
 
 
 def __filter_target_rules(rules, targets):
