@@ -27,16 +27,17 @@ def cli(rules: Tuple[str, ...]):
             "[",
             Text.assemble((":", "dim"),
                           style="italic").join(Text.assemble((l, "yellow")) for l in target.fullname.split(":")), "]")
-        runtime.print(Rule(
-            Text.assemble(
-                Text("Invoking "),
-                group_log_text,
-            ),
-            align="left",
-        ))
+        # runtime.print(Rule(
+        #     Text.assemble(
+        #         Text("Invoking "),
+        #         group_log_text,
+        #     ),
+        #     align="left",
+        # ))
         try:
             # with runtime.console.status(Text.assemble("Running ", "[", group_log_text, "]"), spinner="aesthetic"):
-            target.value.invoke(runtime, Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd()))
+            with runtime._set_message_group(group_log_text):
+                target.value.invoke(runtime, Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd()))
         except Exception as e:
             runtime.print(Text.assemble(("FAILURE", "b red"), " ", group_log_text))
             runtime.error(e)
