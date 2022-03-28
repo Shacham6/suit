@@ -1,0 +1,6 @@
+from suit import suit
+from suit.runtime import Runtime
+
+@suit("prepare-docs")
+def prepare_docs(runtime: Runtime):
+    runtime.log("Running...")

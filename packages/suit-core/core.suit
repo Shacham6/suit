@@ -1,0 +1,7 @@
+from suit import suit
+from suit.runtime import Runtime
+
+
+@suit("lint")
+def lint(runtime: Runtime):
+    runtime.log("linting here")
