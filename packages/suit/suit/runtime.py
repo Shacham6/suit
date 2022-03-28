@@ -26,24 +26,6 @@ def _format_time(dt: datetime) -> Text:
     return Text.assemble(f"[{arrow.get(dt).format('YYYY-MM-DD HH:mm:ss')}]")
 
 
-class _PrintGroup:
-
-    def __init__(self, title: Union[str, Text]):
-        self.__title = title
-        self.__renderables = []
-
-    def print(self, renderable):
-        self.__renderables.append(renderable)
-
-    def __rich__(self):
-        grid = Table.grid(padding=(0, 1, 0, 0))
-        row_content: List[RenderableType] = [Text(f"[{arrow.utcnow().format('YYYY-MM-DD HH:mm:ss')}]", "dim cyan")]
-        if self.__renderables:
-            row_content.append(Panel(Group(*self.__renderables), title=self.__title))
-        grid.add_row(*row_content)
-        return grid
-
-
 console = rich.console.Console(log_time_format=_format_time)
 rich.traceback.install(console=console)
 
@@ -51,8 +33,6 @@ rich.traceback.install(console=console)
 class RicherHandler(logbook.Handler):
 
     def emit(self, record: logbook.LogRecord):
-        # if isinstance(record.message, Exception):
-        #     return
         g = Table.grid(padding=(0, 1))
         g.add_row(
             Text.assemble(
