@@ -57,11 +57,13 @@ class Runtime:
                 tracebacks_show_locals=True,
                 log_time_format=_format_time,
             ))
-
-        self.info = self.__logger.info
         self.debug = self.__logger.debug
         self.error = self.__logger.error
         self.warn = self.__logger.warn
+
+    def info(self, *objects):
+        self.print("INFO", *objects)
+        # self.info = self.__logger.info
 
     def shell(self, command: Union[str, List[str], Tuple[str, ...]]):
         if isinstance(command, str):

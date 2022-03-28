@@ -41,11 +41,12 @@ def cli(rules: Tuple[str, ...]):
         except Exception as e:
             runtime.print(Text.assemble(("FAILURE", "b red"), " ", group_log_text))
             runtime.error(e)
-            failures.append((target, failures))
+            failures.append((group_log_text, failures))
 
-        errors_table = Table(show_header=False, box=rich.box.SIMPLE, show_lines=True)
-        for target_failure, e in failures:
-            pass
+        # errors_table = Table(show_header=False, box=rich.box.SIMPLE, show_lines=True)
+        # for target_failure, e in failures:
+        #     errors_table.add_row(target_failure, e)
+        # runtime.console.print(errors_table)
 
 
 def __filter_target_rules(rules, targets):
