@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Protocol, runtime_checkable
+from typing import Callable, List, Optional, Protocol, Union, runtime_checkable
 
 import rich.repr
 
@@ -36,7 +36,7 @@ class SuitTarget:
         yield "name", self.__name
 
 
-def suit(target_name: str, func=None):
+def suit(target_name: str, func=None) -> Union[SuitTarget, Callable[..., SuitTarget]]:
     if func:
         return SuitTarget(target_name, func)
 
