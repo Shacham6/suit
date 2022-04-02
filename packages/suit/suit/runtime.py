@@ -1,23 +1,15 @@
-import contextlib
-import logging
-import pathlib
 import shlex
 import subprocess
 from datetime import datetime
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 import arrow
 import logbook
 import rich.console
 import rich.logging
 import rich.traceback
-from rich.console import Group, RenderableType
-from rich.live import Live
-from rich.padding import Padding
-from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
-from rich.traceback import Traceback
 
 from .scope import Scope
 
