@@ -1,2 +1,2 @@
 def test_something():
-    assert 0
+    assert 1

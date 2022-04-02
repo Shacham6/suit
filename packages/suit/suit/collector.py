@@ -9,16 +9,15 @@ from box import Box
 import suit
 
 
-def collect():
+def collect(_root_dir: pathlib.Path):
     """Collect the various suitfiles in the workspace."""
-    cwd = pathlib.Path.cwd()
     groups = {}
     tree = {}
     for suit_file in itertools.chain(
-        cwd.glob("**/suit"),
-        cwd.glob("**/*.suit"),
-        cwd.glob("**/suit.py"),
-        cwd.glob("**/*.suit.py"),
+        _root_dir.glob("**/suit"),
+        _root_dir.glob("**/*.suit"),
+        _root_dir.glob("**/suit.py"),
+        _root_dir.glob("**/*.suit.py"),
     ):
         if not suit_file.is_file():
             continue
@@ -31,7 +30,7 @@ def collect():
 
         groups[suit_file.parent] = group_name
 
-        tree_path = suit_file.relative_to(cwd).parent
+        tree_path = suit_file.relative_to(_root_dir).parent
         node = tree
         for path_part in tree_path.parts:
             node = node.setdefault(path_part, {})

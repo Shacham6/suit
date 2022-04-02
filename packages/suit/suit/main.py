@@ -89,7 +89,7 @@ class pass_config:
 @click.argument("rules", nargs=-1, type=str)
 @pass_config("config")
 def list_cli(rules: Tuple[str, ...], config: Box):
-    targets = list(collect())
+    targets = list(collect(config._root))
     if rules:
         targets = list(__filter_target_rules(rules, targets))
     print(_build_targets_view(targets))
@@ -115,16 +115,17 @@ def info_cli(config: Box):
     info_table = Table("Key", "Value", box=rich.box.SIMPLE_HEAD)
     info_table.add_row("_root_dir", _build_path_view(config._root))
 
-    targets = list(collect())
+    targets = list(collect(config._root))
     info_table.add_row("len(targets)", Text(str(len(targets))))
     print(info_table)
 
 
 @cli.command("run")
 @click.argument("rules", nargs=-1, type=str)
-def run_cli(rules: Tuple[str, ...]):
+@pass_config("config")
+def run_cli(rules: Tuple[str, ...], config: Box):
     # pylint: disable=missing-function-docstring
-    targets = list(collect())
+    targets = list(collect(config._root))
     executor = TargetsExecutor(list(__filter_target_rules(rules, targets)))
     failures = executor.execute_sequentally()
     exit(1 if failures else 0)
