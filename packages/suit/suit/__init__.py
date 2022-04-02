@@ -11,7 +11,6 @@ from .scope import Scope
 
 @rich.repr.auto()
 class _SuitRegistry:
-
     def __init__(self, suits: Optional[List[SuitTarget]] = None):
         if not suits:
             suits = []
@@ -33,14 +32,12 @@ registered = _SuitRegistry()
 
 @runtime_checkable
 class TargetFn(Protocol):
-
     def __call__(self, runtime: Runtime, scope: Scope):
         ...
 
 
 @rich.repr.auto()
 class SuitTarget:
-
     def __init__(self, name: str, fn: TargetFn):
         self.__name = name
         self.__fn = fn
@@ -61,7 +58,6 @@ class SuitTarget:
 
 
 def suit(target_name: str):
-
     def __tmp(func):
         target = SuitTarget(target_name, func)
         registered.add(target)

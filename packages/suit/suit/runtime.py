@@ -31,7 +31,6 @@ rich.traceback.install(console=console)
 
 
 class RicherHandler(logbook.Handler):
-
     def emit(self, record: logbook.LogRecord):
         g = Table.grid(padding=(0, 1))
         g.add_row(
@@ -42,9 +41,13 @@ class RicherHandler(logbook.Handler):
             "|",
             record.extra.get("scope", "[b]root[/]"),
             "|",
-            Text.assemble((f"{record.level_name:<8}", self._level_style(record.level_name))),
+            Text.assemble(
+                (f"{record.level_name:<8}", self._level_style(record.level_name))
+            ),
             "]",
-            str(record.message) if isinstance(record.message, Exception) else record.message,
+            str(record.message)
+            if isinstance(record.message, Exception)
+            else record.message,
         )
         console.print(g)
 
@@ -61,7 +64,6 @@ RicherHandler().push_application()
 
 
 class Runtime:
-
     def __init__(self, scope: Scope):
         self.scope = scope
         self.__logger = logbook.Logger("suit")

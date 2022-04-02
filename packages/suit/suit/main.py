@@ -12,6 +12,7 @@ from rich import print
 from rich.table import Table
 from rich.text import Text
 from rich.pretty import Pretty
+from rich.rule import Rule
 
 from suit.collector import collect
 
@@ -43,7 +44,7 @@ def __search_root_file(filename) -> Optional[pathlib.Path]:
 
 
 def __walk_backwards(location: pathlib.Path) -> Iterable[pathlib.Path]:
-    """ Walk from location up to the root path of the system. """
+    """Walk from location up to the root path of the system."""
     if location.is_file():
         location = location.parent
     yield location
@@ -87,7 +88,9 @@ def list_cli(rules: Tuple[str, ...]):
 def _build_targets_view(targets):
     table = Table("Target", "Path", box=rich.box.SIMPLE_HEAD)
     for target in targets:
-        table.add_row(_build_target_name_view(target.fullname), Pretty(str(target.filepath)))
+        table.add_row(
+            _build_target_name_view(target.fullname), Pretty(str(target.filepath))
+        )
     return table
 
 
@@ -102,17 +105,19 @@ def run_cli(rules: Tuple[str, ...]):
 
 
 class TargetsExecutor:
-
     def __init__(self, targets):
         self.__targets = targets
 
     def execute_sequentally(self):
         failures = []
         for target in self.__targets:
-            target_scope = Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd())
+            target_scope = Scope(
+                target.fullname, target.filepath.parent, pathlib.Path.cwd()
+            )
             runtime = Runtime(target_scope)
 
             group_log_text = Text.assemble(_build_target_name_view(target.fullname))
+            runtime.info(Rule(Text.assemble("Executing target ", group_log_text)))
             with _push_extras(scope=group_log_text):
                 try:
                     target.value.invoke(runtime, target_scope)
@@ -124,7 +129,6 @@ class TargetsExecutor:
 
 @contextlib.contextmanager
 def _push_extras(**extras):
-
     def _tmp(record: logbook.LogRecord):
         nonlocal extras
         for key, value in extras.items():
@@ -144,4 +148,6 @@ def __filter_target_rules(rules, targets):
 
 def _build_target_name_view(target_name):
     return Text.assemble((":", "dim"), style="italic").join(
-        Text.assemble((target_part_name, "yellow")) for target_part_name in target_name.split(":"))
+        Text.assemble((target_part_name, "yellow"))
+        for target_part_name in target_name.split(":")
+    )

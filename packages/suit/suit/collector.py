@@ -15,10 +15,10 @@ def collect():
     groups = {}
     tree = {}
     for suit_file in itertools.chain(
-            cwd.glob("**/suit"),
-            cwd.glob("**/*.suit"),
-            cwd.glob("**/suit.py"),
-            cwd.glob("**/*.suit.py"),
+        cwd.glob("**/suit"),
+        cwd.glob("**/*.suit"),
+        cwd.glob("**/suit.py"),
+        cwd.glob("**/*.suit.py"),
     ):
         if not suit_file.is_file():
             continue
@@ -41,14 +41,23 @@ def collect():
         for name, value in module.__dict__.items():
             if not isinstance(value, suit.SuitTarget):
                 continue
-            node[value.name] = {"__is_runnable__": True, "__filepath__": suit_file, "__value__": value}
+            node[value.name] = {
+                "__is_runnable__": True,
+                "__filepath__": suit_file,
+                "__value__": value,
+            }
     return list(__collect_tree(tree))
 
 
 def _is_git_ignored(suit_file: pathlib.Path) -> bool:
-    return subprocess.call(["git", "check-ignore", str(suit_file)],
-                           stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL) == 0
+    return (
+        subprocess.call(
+            ["git", "check-ignore", str(suit_file)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        == 0
+    )
 
 
 def __collect_tree(value, tree_parts=None):
@@ -61,9 +70,11 @@ def __collect_tree(value, tree_parts=None):
                 continue
             if isinstance(v, Mapping):
                 if v.get("__is_runnable__", False):
-                    yield Box(fullname=":".join([*tree_parts, k]),
-                              name=k,
-                              filepath=v["__filepath__"],
-                              value=v["__value__"])
+                    yield Box(
+                        fullname=":".join([*tree_parts, k]),
+                        name=k,
+                        filepath=v["__filepath__"],
+                        value=v["__value__"],
+                    )
                 elif v.get("__registered__", False):
                     yield from __collect_tree(v, tree_parts + [k])
