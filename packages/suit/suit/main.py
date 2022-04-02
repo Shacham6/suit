@@ -5,10 +5,14 @@ import sys
 from typing import Iterable, List, Optional, Tuple
 
 import click
-import click_default_group
 import logbook
+import rich.box
 from box import Box
+from rich import print
+from rich.panel import Panel
+from rich.table import Table
 from rich.text import Text
+from rich.pretty import Pretty
 
 from suit.collector import collect
 
@@ -63,8 +67,26 @@ def cli(ctx: click.Context, config: Box):
     # pylint: disable=missing-function-docstring
     ctx.ensure_object(Box)
     ctx.obj.config = config
-    for import_location in config["suit"].get("plugins_locations", []):
+    extra_imports = config["suit"].get("imports", [])
+
+    if isinstance(extra_imports, str):
+        extra_imports = [extra_imports]
+
+    for import_location in extra_imports:
         sys.path.append(import_location)
+
+
+@cli.command("list")
+def list_cli():
+    targets = list(collect())
+    print(_build_targets_view(targets))
+
+
+def _build_targets_view(targets):
+    table = Table("Target", "Path", box=rich.box.SIMPLE_HEAD)
+    for target in targets:
+        table.add_row(_build_target_name_view(target.fullname), Pretty(str(target.filepath)))
+    return table
 
 
 @cli.command("run")
@@ -73,7 +95,8 @@ def run_cli(rules: Tuple[str, ...]):
     # pylint: disable=missing-function-docstring
     targets = list(collect())
     executor = TargetsExecutor(list(__filter_target_rules(rules, targets)))
-    executor.execute_sequentally()
+    failures = executor.execute_sequentally()
+    exit(1 if failures else 0)
 
 
 class TargetsExecutor:
@@ -87,15 +110,14 @@ class TargetsExecutor:
             target_scope = Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd())
             runtime = Runtime(target_scope)
 
-            group_log_text = Text.assemble(
-                Text.assemble((":", "dim"), style="italic").join(
-                    Text.assemble((target_part_name, "yellow")) for target_part_name in target.fullname.split(":")),)
+            group_log_text = Text.assemble(_build_target_name_view(target.fullname))
             with _push_extras(scope=group_log_text):
                 try:
                     target.value.invoke(runtime, target_scope)
                 except Exception as exc:  # pylint: disable=broad-except
                     runtime.exception(exc)
                     failures.append((target, exc))
+        return failures
 
 
 @contextlib.contextmanager
@@ -116,3 +138,8 @@ def __filter_target_rules(rules, targets):
         for target in targets:
             if compiled_rule.search(target.fullname):
                 yield target
+
+
+def _build_target_name_view(target_name):
+    return Text.assemble((":", "dim"), style="italic").join(
+        Text.assemble((target_part_name, "yellow")) for target_part_name in target_name.split(":"))

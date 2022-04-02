@@ -1,5 +1,2 @@
 [suit]
-
-plugins_locations = [
-  "suit-plugins",
-]
+imports = "suit-plugins"

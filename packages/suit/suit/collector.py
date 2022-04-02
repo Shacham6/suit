@@ -2,7 +2,7 @@ import itertools
 import pathlib
 import subprocess
 from importlib.machinery import SourceFileLoader
-from typing import Mapping
+from typing import Iterable, List, Mapping
 
 from box import Box
 
@@ -24,7 +24,6 @@ def collect():
             continue
         if _is_git_ignored(suit_file):
             continue
-
         if suit_file.name in ("suit", "suit.py"):
             group_name = suit_file.parent.name
         else:
