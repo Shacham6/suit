@@ -1,6 +1,6 @@
 from typing import Callable, Protocol, TypeVar
 
-from typing_extensions import ParamSpec
+from typing_extensions import ParamSpec, Self
 
 from suit import Runtime, Scope, SuitTarget, suit
 
@@ -17,6 +17,9 @@ class _FnPlugin:
     def __init__(self, fn: PluginFn, name: str):
         self.__fn = fn
         self.__name = name
+
+    def with_name(self, name: str) -> Self:
+        return _FnPlugin(self.__fn, name)
 
     def __call__(self, *args, **kwargs) -> SuitTarget:
         @suit(self.__name)

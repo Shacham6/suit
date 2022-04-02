@@ -1,10 +1,10 @@
 from rich.panel import Panel
-from suit import Runtime, Scope, suit
+from suit import Runtime, Scope
 from suit.plugin import plugin
 
 
-@plugin("lint")
-def impl(location: str, *, runtime: Runtime, scope: Scope):
+@plugin("lint::black")
+def lint(location: str, *, runtime: Runtime, scope: Scope):
     runtime.info("Linting using `black`...")
     res = runtime.shell(["black", "--check", str(scope.local / location)])
     if res.returncode != 0:
@@ -12,7 +12,7 @@ def impl(location: str, *, runtime: Runtime, scope: Scope):
     runtime.info("Finished linting using `black`.")
 
 
-@plugin("format")
+@plugin("format::black")
 def format_(location: str, *, runtime: Runtime, scope: Scope):
     runtime.info("Formatting using `black`...")
     res = runtime.shell(["black", str(scope.local / location)])

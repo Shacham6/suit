@@ -1,4 +1,5 @@
 from suit.plugin import plugin, Runtime, Scope
 
 
-@plugin("")
+@plugin("pytest")
+def
