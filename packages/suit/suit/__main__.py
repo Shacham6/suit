@@ -1,3 +1,3 @@
 from . import main
 
-main.cli()
+main.cli()  # pylint: disable=E1120
