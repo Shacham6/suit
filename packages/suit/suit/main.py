@@ -53,22 +53,31 @@ def __walk_backwards(location: pathlib.Path) -> Iterable[pathlib.Path]:
               type=click.Path(exists=True, readable=True, path_type=pathlib.Path),
               callback=__get_configuration)
 def cli(rules: Tuple[str, ...], config: Box):
-    print(config)
     targets = list(collect())
-    failures = []
-    for target in __filter_target_rules(rules, targets):
-        target_scope = Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd())
-        runtime = Runtime(target_scope)
+    executor = TargetsExecutor(list(__filter_target_rules(rules, targets)))
+    executor.execute_sequentally()
 
-        group_log_text = Text.assemble(
-            Text.assemble((":", "dim"),
-                          style="italic").join(Text.assemble((l, "yellow")) for l in target.fullname.split(":")),)
-        with _push_extras(scope=group_log_text):
-            try:
-                target.value.invoke(runtime, target_scope)
-            except Exception as exc:
-                runtime.exception(exc)
-                failures.append((target, exc))
+
+class TargetsExecutor:
+
+    def __init__(self, targets):
+        self.__targets = targets
+
+    def execute_sequentally(self):
+        failures = []
+        for target in self.__targets:
+            target_scope = Scope(target.fullname, target.filepath.parent, pathlib.Path.cwd())
+            runtime = Runtime(target_scope)
+
+            group_log_text = Text.assemble(
+                Text.assemble((":", "dim"), style="italic").join(
+                    Text.assemble((target_part_name, "yellow")) for target_part_name in target.fullname.split(":")),)
+            with _push_extras(scope=group_log_text):
+                try:
+                    target.value.invoke(runtime, target_scope)
+                except Exception as exc:  # pylint: disable=broad-except
+                    runtime.exception(exc)
+                    failures.append((target, exc))
 
 
 @contextlib.contextmanager
@@ -76,11 +85,11 @@ def _push_extras(**extras):
 
     def _tmp(record: logbook.LogRecord):
         nonlocal extras
-        for k, v in extras.items():
-            record.extra[k] = v
+        for key, value in extras.items():
+            record.extra[key] = value
 
-    with logbook.Processor(_tmp) as a:
-        yield a
+    with logbook.Processor(_tmp) as thing:
+        yield thing
 
 
 def __filter_target_rules(rules, targets):
