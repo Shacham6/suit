@@ -15,6 +15,11 @@ class _FnPlugin:
         return suit(self.__name)(functools.partial(self.__fn, *args, **kwargs))
 
 
-@decorator
-def plugin(func, name):
-    return _FnPlugin(func, name)
+def plugin(name, func=None):
+    if func:
+        return _FnPlugin(func, name)
+
+    def _tmp(func):
+        return _FnPlugin(func, name)
+
+    return _tmp
