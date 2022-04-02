@@ -1,18 +1,18 @@
 import contextlib
+import functools
 import pathlib
 import re
 import sys
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable, Optional, Tuple
 
 import click
 import logbook
 import rich.box
 from box import Box
 from rich import print
+from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
-from rich.pretty import Pretty
-from rich.rule import Rule
 
 from suit.collector import collect
 
@@ -27,12 +27,12 @@ def __get_configuration(
 ) -> Box:
     # pylint: disable=unused-argument
     if value:
-        return Box.from_toml(filename=value)
+        return Box(Box.from_toml(filename=value), _root=value.parent)
 
     if found_target := __search_root_file("suit.toml"):
-        return Box.from_toml(filename=found_target)
+        return Box(Box.from_toml(filename=found_target), _root=found_target.parent)
 
-    return Box()
+    return Box(_root=pathlib.Path.cwd())
 
 
 def __search_root_file(filename) -> Optional[pathlib.Path]:
@@ -51,17 +51,14 @@ def __walk_backwards(location: pathlib.Path) -> Iterable[pathlib.Path]:
     yield from location.parents
 
 
-pass_config = click.option(
+@click.group("suit")
+@click.option(
     "--config",
     "-c",
     "config",
     type=click.Path(exists=True, readable=True, path_type=pathlib.Path),
     callback=__get_configuration,
 )
-
-
-@click.group("suit")
-@pass_config
 @click.pass_context
 def cli(ctx: click.Context, config: Box):
     # pylint: disable=missing-function-docstring
@@ -76,9 +73,22 @@ def cli(ctx: click.Context, config: Box):
         sys.path.append(import_location)
 
 
+class pass_config:
+    def __init__(self, name):
+        self.__name = name
+
+    def __call__(self, func):
+        @click.pass_context
+        def _tmp(ctx: click.Context, *args, **kwargs):
+            return ctx.invoke(func, *args, **{**kwargs, self.__name: ctx.obj.config})
+
+        return functools.update_wrapper(_tmp, func)
+
+
 @cli.command("list")
 @click.argument("rules", nargs=-1, type=str)
-def list_cli(rules: Tuple[str, ...]):
+@pass_config("config")
+def list_cli(rules: Tuple[str, ...], config: Box):
     targets = list(collect())
     if rules:
         targets = list(__filter_target_rules(rules, targets))
@@ -89,9 +99,25 @@ def _build_targets_view(targets):
     table = Table("Target", "Path", box=rich.box.SIMPLE_HEAD)
     for target in targets:
         table.add_row(
-            _build_target_name_view(target.fullname), Pretty(str(target.filepath))
+            _build_target_name_view(target.fullname),
+            _build_path_view(target.filepath),
         )
     return table
+
+
+def _build_path_view(path: pathlib.Path):
+    return Text(str(path), "cyan")
+
+
+@cli.command("info")
+@pass_config("config")
+def info_cli(config: Box):
+    info_table = Table("Key", "Value", box=rich.box.SIMPLE_HEAD)
+    info_table.add_row("_root_dir", _build_path_view(config._root))
+
+    targets = list(collect())
+    info_table.add_row("len(targets)", Text(str(len(targets))))
+    print(info_table)
 
 
 @cli.command("run")
