@@ -1,5 +1,5 @@
 from rich.panel import Panel
-from suit import Runtime, Scope, suit
+from suit import Runtime, Scope
 
 
 class lint:
