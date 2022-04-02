@@ -68,7 +68,9 @@ class Runtime:
     def shell(self, command: Union[str, List[str], Tuple[str, ...]]):
         if isinstance(command, str):
             command = shlex.split(command)
-        return subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return subprocess.run(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8"
+        )
 
     def fail(self, message: str):
         raise TargetFailedException(message)
