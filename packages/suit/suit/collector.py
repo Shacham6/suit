@@ -1,16 +1,10 @@
-import importlib
-import importlib.readers
-import importlib.util
 import itertools
 import pathlib
 import subprocess
-from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
-from typing import Any, Mapping, MutableMapping
+from typing import Mapping
 
-import rich.repr
 from box import Box
-from rich import print
 
 import suit
 
@@ -49,7 +43,7 @@ def collect():
             if not isinstance(value, suit.SuitTarget):
                 continue
             node[value.name] = {"__is_runnable__": True, "__filepath__": suit_file, "__value__": value}
-    return list(collect_tree(tree))
+    return list(__collect_tree(tree))
 
 
 def _is_git_ignored(suit_file: pathlib.Path) -> bool:
@@ -58,7 +52,7 @@ def _is_git_ignored(suit_file: pathlib.Path) -> bool:
                            stderr=subprocess.DEVNULL) == 0
 
 
-def collect_tree(value, tree_parts=None):
+def __collect_tree(value, tree_parts=None):
     if not tree_parts:
         tree_parts = []
 
@@ -73,4 +67,4 @@ def collect_tree(value, tree_parts=None):
                               filepath=v["__filepath__"],
                               value=v["__value__"])
                 elif v.get("__registered__", False):
-                    yield from collect_tree(v, tree_parts + [k])
+                    yield from __collect_tree(v, tree_parts + [k])
