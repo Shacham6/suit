@@ -16,22 +16,15 @@ def lint(location: str):
     return impl
 
 
-@plugin
-
-
-# def format_(location: str):
-
-#     @suit("format")
-#     def impl(runtime: Runtime, scope: Scope):
-#         runtime.info("Formatting using `black`...")
-#         res = runtime.shell(["black", str(scope.local / location)])
-#         if res.stdout:
-#             runtime.info(Panel(res.stdout.decode("utf-8"), title="`black` output"))
-#         if res.returncode != 0:
-#             __print_process_error(runtime, res)
-#         runtime.info("Finished formatting using `black`.")
-
-#     return impl
+@plugin("format")
+def format_(location: str, *, runtime: Runtime, scope: Scope):
+    runtime.info("Formatting using `black`...")
+    res = runtime.shell(["black", str(scope.local / location)])
+    if res.stdout:
+        runtime.info(Panel(res.stdout.decode("utf-8"), title="`black` output"))
+    if res.returncode != 0:
+        __print_process_error(runtime, res)
+    runtime.info("Finished formatting using `black`.")
 
 
 def __print_process_error(runtime, process):
