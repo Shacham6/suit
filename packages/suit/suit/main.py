@@ -1,6 +1,7 @@
 import contextlib
 import pathlib
 import re
+import sys
 from typing import Iterable, List, Optional, Tuple
 
 import click
@@ -62,6 +63,8 @@ def cli(ctx: click.Context, config: Box):
     # pylint: disable=missing-function-docstring
     ctx.ensure_object(Box)
     ctx.obj.config = config
+    for import_location in config["suit"].get("plugins_locations", []):
+        sys.path.append(import_location)
 
 
 @cli.command("run")
