@@ -165,10 +165,14 @@ def _push_extras(**extras):
 
 
 def __filter_target_rules(rules, targets):
+    found_targets = set()
     for rule in rules:
         compiled_rule = re.compile(rule)
         for target in targets:
-            if compiled_rule.search(target.fullname):
+            if not compiled_rule.search(target.fullname):
+                continue
+            if target.fullname not in found_targets:
+                found_targets.add(target.fullname)
                 yield target
 
 
