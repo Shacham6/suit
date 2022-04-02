@@ -1,1 +1,5 @@
 [suit]
+
+plugins_locations = [
+  "suit-plugins",
+]

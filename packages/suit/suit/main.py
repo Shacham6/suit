@@ -53,6 +53,7 @@ def __walk_backwards(location: pathlib.Path) -> Iterable[pathlib.Path]:
               type=click.Path(exists=True, readable=True, path_type=pathlib.Path),
               callback=__get_configuration)
 def cli(rules: Tuple[str, ...], config: Box):
+    print(config)
     targets = list(collect())
     failures = []
     for target in __filter_target_rules(rules, targets):
