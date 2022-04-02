@@ -1,4 +1,3 @@
-import pathlib
 import signal
 import subprocess
 
@@ -19,31 +18,28 @@ class InstallRequires:
             cwd=str(scope.local),
             encoding="utf-8",
         )
-        runtime.info("Installing requirements...")
+        with runtime.ui_panel("Install Requires"):
+            runtime.info("Installing requirements...")
 
-        try:
-            if pip_install_process.stdout:
-                for line in pip_install_process.stdout:
-                    runtime.info(
-                        Text.assemble(
-                            ("OUTPUT|", "dim cyan"),
-                            " ",
-                            (line.rstrip("\n"), "italic"),
+            try:
+                if pip_install_process.stdout:
+                    for line in pip_install_process.stdout:
+                        runtime.info(
+                            Text.assemble(
+                                (line.rstrip("\n"), "italic"), overflow="ellipsis"
+                            )
                         )
-                    )
 
-            if pip_install_process.stderr:
-                for line in pip_install_process.stderr:
-                    runtime.error(
-                        Text.assemble(
-                            ("ERROR|", "dim red"),
-                            " ",
-                            (line.rstrip("\n"), "italic"),
+                if pip_install_process.stderr:
+                    for line in pip_install_process.stderr:
+                        runtime.error(
+                            Text.assemble(
+                                (line.rstrip("\n"), "italic red"),
+                            )
                         )
-                    )
 
-        except KeyboardInterrupt:
-            pip_install_process.send_signal(signal.SIGKILL)
+            except KeyboardInterrupt:
+                pip_install_process.send_signal(signal.SIGKILL)
 
 
 def __fix_lines(sources):

@@ -1,14 +1,20 @@
+from __future__ import annotations
+
+import contextlib
 import shlex
 import subprocess
 from datetime import datetime
-from typing import List, Tuple, Union
+from typing import Callable, List, Tuple, Union
 
 import arrow
-from box import Box
 import logbook
 import rich.console
 import rich.logging
 import rich.traceback
+from box import Box
+from rich.console import Group, RenderableType
+from rich.live import Live
+from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
@@ -76,6 +82,94 @@ class Runtime:
 
     def fail(self, message: str):
         raise TargetFailedException(message)
+
+    @contextlib.contextmanager
+    def ui_panel(self, title: str):
+        live_controller = Live()
+        ui_panel = UIPanel(title, lambda renderable: live_controller.update(renderable))
+        ui_panel_handler = UIPanelHandler(ui_panel)
+        with ui_panel_handler, live_controller:
+            yield ui_panel
+
+
+class UIPanelHandler(logbook.Handler):
+    def __init__(self, live: UIPanel):
+        super().__init__()
+        self.__ui_panel = live
+
+    def emit(self, record: logbook.LogRecord):
+        g = Table.grid(padding=(0, 1))
+        g.add_row(
+            Text.assemble(
+                "[",
+                (arrow.get(record.time).format("YYYY-MM-DD HH:mm:ss"), "dim cyan"),
+            ),
+            "| ",
+            str(record.message)
+            if isinstance(record.message, Exception)
+            else record.message,
+        )
+        self.__ui_panel.set_level(record.level_name.upper())
+        self.__ui_panel.set_scope(record.extra.get("scope", "[b]root[/]"))
+        self.__ui_panel.push(g)
+
+    def _level_style(self, level_name: str) -> str:
+        return {
+            "INFO": "bold",
+            "DEBUG": "bold cyan",
+            "ERROR": "bold red",
+            "CRITICAL": "bold red",
+        }[level_name.upper()]
+
+
+class UIPanel:
+    def __init__(self, title: str, on_update: Callable[[RenderableType], None]):
+        self.__title = title
+        self.__creation_time = arrow.now()
+        self.__renderables = []
+        self.__scope = ""
+        self.__level = "DEBUG"
+        self.__on_update = on_update
+
+    def push(self, renderable: RenderableType):
+        self.__renderables.append(renderable)
+        self.__on_update(self)
+
+    def set_scope(self, scope: str):
+        self.__scope = scope
+        return self
+
+    def set_level(self, level: str):
+        self.__level = level
+        return self
+
+    def __rich__(self) -> RenderableType:
+        g = Table.grid(padding=(0, 1))
+        g.add_row(
+            Text.assemble(
+                "[",
+                (self.__creation_time.format("YYYY-MM-DD HH:mm:ss"), "dim cyan"),
+            ),
+            "|",
+            self.__scope,
+            "|",
+            Text.assemble((f"{self.__level:<8}", self._level_style(self.__level))),
+            "| ",
+            Panel(
+                Group(*self.__renderables),
+                title=Text(self.__title, "bold"),
+                title_align="left",
+            ),
+        )
+        return g
+
+    def _level_style(self, level_name: str) -> str:
+        return {
+            "INFO": "bold",
+            "DEBUG": "bold cyan",
+            "ERROR": "bold red",
+            "CRITICAL": "bold red",
+        }[level_name.upper()]
 
 
 class TargetFailedException(Exception):

@@ -7,11 +7,12 @@ class lint:
         self.__location = location
 
     def __call__(self, runtime: Runtime, scope: Scope):
-        runtime.info("Linting using `black`...")
-        res = runtime.shell(["black", "--check", str(scope.local / self.__location)])
-        if res.returncode != 0:
-            _print_process_error(runtime, res)
-        runtime.info("Finished linting using `black`.")
+        with runtime.ui_panel("black"):
+            runtime.info("Linting using `black`...")
+            res = runtime.shell(["black", "--check", str(scope.local / self.__location)])
+            if res.returncode != 0:
+                _print_process_error(runtime, res)
+            runtime.info("Finished linting using `black`!")
 
 
 class format_:
@@ -19,13 +20,14 @@ class format_:
         self.__location = location
 
     def __call__(self, runtime: Runtime, scope: Scope):
-        runtime.info("Formatting using `black`...")
-        res = runtime.shell(["black", str(scope.local / self.__location)])
-        if res.stdout:
-            runtime.info(Panel(res.stdout, title="`black` output"))
-        if res.returncode != 0:
-            _print_process_error(runtime, res)
-        runtime.info("Finished formatting using `black`.")
+        with runtime.ui_panel("black"):
+            runtime.info("Formatting using `black`...")
+            res = runtime.shell(["black", str(scope.local / self.__location)])
+            if res.stdout:
+                runtime.info(Panel(res.stdout, title="`black` output"))
+            if res.returncode != 0:
+                _print_process_error(runtime, res)
+            runtime.info("Finished formatting using `black`!")
 
 
 def _print_process_error(runtime, process):
