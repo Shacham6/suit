@@ -9,12 +9,14 @@ from importlib.machinery import SourceFileLoader
 from typing import Any, Mapping, MutableMapping
 
 import rich.repr
-import suit
 from box import Box
 from rich import print
 
+import suit
+
 
 def collect():
+    """Collect the various suitfiles in the workspace."""
     cwd = pathlib.Path.cwd()
     groups = {}
     tree = {}
