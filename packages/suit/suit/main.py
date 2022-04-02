@@ -4,6 +4,7 @@ import re
 from typing import Iterable, List, Optional, Tuple
 
 import click
+import click_default_group
 import logbook
 from box import Box
 from rich.text import Text
@@ -45,14 +46,28 @@ def __walk_backwards(location: pathlib.Path) -> Iterable[pathlib.Path]:
     yield from location.parents
 
 
-@click.command("suit")
+pass_config = click.option(
+    "--config",
+    "-c",
+    "config",
+    type=click.Path(exists=True, readable=True, path_type=pathlib.Path),
+    callback=__get_configuration,
+)
+
+
+@click.group("suit")
+@pass_config
+@click.pass_context
+def cli(ctx: click.Context, config: Box):
+    # pylint: disable=missing-function-docstring
+    ctx.ensure_object(Box)
+    ctx.obj.config = config
+
+
+@cli.command("run")
 @click.argument("rules", nargs=-1, type=str)
-@click.option("--config",
-              "-c",
-              "config",
-              type=click.Path(exists=True, readable=True, path_type=pathlib.Path),
-              callback=__get_configuration)
-def cli(rules: Tuple[str, ...], config: Box):
+def run_cli(rules: Tuple[str, ...]):
+    # pylint: disable=missing-function-docstring
     targets = list(collect())
     executor = TargetsExecutor(list(__filter_target_rules(rules, targets)))
     executor.execute_sequentally()
