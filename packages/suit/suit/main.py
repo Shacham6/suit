@@ -9,7 +9,6 @@ import logbook
 import rich.box
 from box import Box
 from rich import print
-from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich.pretty import Pretty
@@ -77,8 +76,11 @@ def cli(ctx: click.Context, config: Box):
 
 
 @cli.command("list")
-def list_cli():
+@click.argument("rules", nargs=-1, type=str)
+def list_cli(rules: Tuple[str, ...]):
     targets = list(collect())
+    if rules:
+        targets = list(__filter_target_rules(rules, targets))
     print(_build_targets_view(targets))
 
 

@@ -10,3 +10,8 @@ def lint(runtime: Runtime, scope: Scope):
         err_message = res.stderr.decode("utf-8").strip()
         runtime.error(Panel(err_message, title="`black` [b red]errors[/]!"))
         runtime.fail("`black` returned with non-zero return code.")
+
+
+@suit("format")
+def format_(runtime: Runtime, scope: Scope):
+    runtime.info("Format using `black`...")
