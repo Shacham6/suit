@@ -9,27 +9,6 @@ from suit.runtime import Runtime
 from .scope import Scope
 
 
-@rich.repr.auto()
-class _SuitRegistry:
-    def __init__(self, suits: Optional[List[SuitTarget]] = None):
-        if not suits:
-            suits = []
-        self.__suits = suits
-
-    @property
-    def suits(self) -> List[SuitTarget]:
-        return self.__suits
-
-    def add(self, suit: SuitTarget) -> None:
-        self.__suits.append(suit)
-
-    def __rich_repr__(self):
-        yield "suits", self.suits
-
-
-registered = _SuitRegistry()
-
-
 @runtime_checkable
 class TargetFn(Protocol):
     def __call__(self, runtime: Runtime, scope: Scope):
@@ -57,10 +36,12 @@ class SuitTarget:
         yield "name", self.__name
 
 
-def suit(target_name: str):
+def suit(target_name: str, func=None):
+    if func:
+        return SuitTarget(target_name, func)
+
     def __tmp(func):
         target = SuitTarget(target_name, func)
-        registered.add(target)
         return target
 
     return __tmp
