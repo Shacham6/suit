@@ -29,8 +29,8 @@ class SuitTarget:
     def fn(self) -> TargetFn:
         return self.__fn
 
-    def invoke(self, runtime, scope: Scope):
-        return self.__fn(runtime, scope)
+    def invoke(self, runtime, scope: Scope, **kwargs):
+        return self.__fn(runtime, scope, **kwargs)
 
     def __rich_repr__(self):
         yield "name", self.__name
