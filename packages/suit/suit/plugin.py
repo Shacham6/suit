@@ -1,34 +1,20 @@
-import abc
 import functools
 
+from decorator import decorator
 
-class PluginBase(metaclass=abc.ABCMeta):
+from suit import Runtime, Scope, suit
 
-    @abc.abstractmethod
-    def _execute(self, *args, **kwargs):
-        raise NotImplementedError
+
+class _FnPlugin:
+
+    def __init__(self, fn, name):
+        self.__fn = fn
+        self.__name = name
 
     def __call__(self, *args, **kwargs):
-        return functools.partial(self._execute, *args, **kwargs)
+        return suit(self.__name)(functools.partial(self.__fn, *args, **kwargs))
 
 
-class _FnPlugin(PluginBase):
-
-    def __init__(self, fn):
-        self.__fn = fn
-
-    def _execute(self, *args, **kwargs):
-        return self.__fn(*args, **kwargs)
-
-
-class _PartialBuilder:
-
-    def __init__(self, fn):
-        self.__fn = fn
-
-    def __call__(self, *args, **kwargs):
-        return functools.partial(self.__fn, *args, **kwargs)
-
-
-def plugin(fn):
-    return _PartialBuilder(fn)
+@decorator
+def plugin(func, name):
+    return _FnPlugin(func, name)
