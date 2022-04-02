@@ -126,14 +126,15 @@ def info_cli(config: Box):
 def run_cli(rules: Tuple[str, ...], config: Box):
     # pylint: disable=missing-function-docstring
     targets = list(collect(config._root))
-    executor = TargetsExecutor(list(__filter_target_rules(rules, targets)))
+    executor = TargetsExecutor(list(__filter_target_rules(rules, targets)), config)
     failures = executor.execute_sequentally()
     exit(1 if failures else 0)
 
 
 class TargetsExecutor:
-    def __init__(self, targets):
+    def __init__(self, targets, config: Box):
         self.__targets = targets
+        self.__config = config
 
     def execute_sequentally(self):
         failures = []
@@ -141,7 +142,7 @@ class TargetsExecutor:
             target_scope = Scope(
                 target.fullname, target.filepath.parent, pathlib.Path.cwd()
             )
-            runtime = Runtime(target_scope)
+            runtime = Runtime(target_scope, Box(self.__config, frozen_box=True))
 
             group_log_text = Text.assemble(_build_target_name_view(target.fullname))
             runtime.info(Rule(Text.assemble("Executing target ", group_log_text)))

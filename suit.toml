@@ -1,2 +1,6 @@
 [suit]
 imports = "suit-plugins"
+
+[suit.plugins]
+[suit.plugins.install_requires]
+pip_command = "pip"

@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import List, Tuple, Union
 
 import arrow
+from box import Box
 import logbook
 import rich.console
 import rich.logging
@@ -36,7 +37,7 @@ class RicherHandler(logbook.Handler):
             Text.assemble(
                 (f"{record.level_name:<8}", self._level_style(record.level_name))
             ),
-            "]",
+            "| ",
             str(record.message)
             if isinstance(record.message, Exception)
             else record.message,
@@ -56,7 +57,7 @@ RicherHandler().push_application()
 
 
 class Runtime:
-    def __init__(self, scope: Scope):
+    def __init__(self, scope: Scope, config: Box):
         self.scope = scope
         self.__logger = logbook.Logger("suit")
         self.info = self.__logger.info
@@ -64,6 +65,7 @@ class Runtime:
         self.warn = self.__logger.warn
         self.error = self.__logger.error
         self.exception = self.__logger.exception
+        self.config = config
 
     def shell(self, command: Union[str, List[str], Tuple[str, ...]]):
         if isinstance(command, str):
