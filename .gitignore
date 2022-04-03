@@ -211,7 +211,3 @@ fabric.properties
 .vscode/
 package-lock.json
 .DS_Store
-pglearn_resources/
-
-# This file is an artifact of the ply parser generator.
-pglearn-core/pagaya_learn/pagaya_learn/expression_eval/parser.out
