@@ -22,8 +22,8 @@ class TargetsCollector:
                     continue
                 yield Target(
                     root=self.__root,
-                    target=found_project_file,
-                    suit=project_data["tool"]["suit"],
+                    target_path=found_project_file,
+                    target_data=project_data["tool"]["suit"],
                 )
 
 
@@ -33,8 +33,8 @@ class Target(NamedTuple):
     """
 
     root: pathlib.Path
-    target: pathlib.Path
-    suit: Mapping[str, Any]
+    target_data: Mapping[str, Any]
+    target_path: pathlib.Path
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
