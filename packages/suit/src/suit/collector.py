@@ -1,5 +1,6 @@
+import itertools
 import pathlib
-from typing import Any, Mapping, NamedTuple
+from typing import Any, Iterable, List, Mapping, NamedTuple
 
 import tomli
 
@@ -40,3 +41,21 @@ def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
     if "suit" not in pyproject_data.get("tool", {}):
         return False
     return True
+
+
+def _find_root_directory(cwd: pathlib.Path = pathlib.Path.cwd()) -> pathlib.Path:
+    if cwd.is_file():
+        cwd = cwd.parent
+    searched_paths = [cwd, *cwd.parents]
+    for loc in searched_paths:
+        if loc.joinpath("suit.toml").exists():
+            return loc
+    raise RootDirectoryNotFound(searched_paths=searched_paths)
+
+
+class RootDirectoryNotFound(Exception):
+    def __init__(self, searched_paths: List[pathlib.Path]):
+        super().__init__(
+            f"Could not find `suit.toml` file, that signifies root directory. Searched: {searched_paths}"
+        )
+        self.searched_paths = searched_paths
