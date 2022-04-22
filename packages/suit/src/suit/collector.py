@@ -99,10 +99,26 @@ class Suit:
         local_config: Mapping[str, Any],
         raw_targets: List[_TargetConfig],
     ):
-        self.root = root
-        self.local_config = local_config
-        self.raw_targets = raw_targets
-        self.targets = Targets(weakref.ref(self))
+        self.__root = root
+        self.__local_config = local_config
+        self.__raw_targets = raw_targets
+        self.__targets = Targets(weakref.ref(self))
+
+    @property
+    def root(self) -> pathlib.Path:
+        return self.__root
+
+    @property
+    def local_config(self) -> Mapping[str, Any]:
+        return self.__local_config
+
+    @property
+    def raw_targets(self) -> List[_TargetConfig]:
+        return self.__raw_targets
+
+    @property
+    def targets(self) -> Targets:
+        return self.__targets
 
 
 class Target:
