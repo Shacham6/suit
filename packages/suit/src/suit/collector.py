@@ -1,6 +1,7 @@
-import itertools
+from __future__ import annotations
+
 import pathlib
-from typing import Any, Iterable, List, Mapping, NamedTuple
+from typing import Any, List, Mapping, NamedTuple
 
 import tomli
 
@@ -13,28 +14,41 @@ class SuitCollector:
     def __init__(self, root: pathlib.Path):
         self.__root = root
 
-    def collect(self):
+    def collect(self) -> Suit:
         """Collect all targets in the directory structure"""
+        return Suit(
+            self.__root,
+            targets=list(self.__collect_targets()),
+        )
+
+    def __collect_targets(self):
         for found_project_file in self.__root.glob("**/pyproject.toml"):
             with found_project_file.open("rb") as found_project_file_io:
                 project_data = tomli.load(found_project_file_io)
                 if not _pyproject_uses_suit(project_data):
                     continue
                 yield Target(
-                    root=self.__root,
-                    target_path=found_project_file,
-                    target_data=project_data["tool"]["suit"],
+                    path=found_project_file,
+                    data=project_data["tool"]["suit"],
                 )
 
 
 class Target(NamedTuple):
     """
-    A suit-using target.
+    A project target.
+    """
+
+    path: pathlib.Path
+    data: Mapping[str, Any]
+
+
+class Suit(NamedTuple):
+    """
+    The general suit configurations.
     """
 
     root: pathlib.Path
-    target_data: Mapping[str, Any]
-    target_path: pathlib.Path
+    targets: List[Target]
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:

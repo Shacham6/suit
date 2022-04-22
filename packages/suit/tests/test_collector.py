@@ -6,8 +6,8 @@ import pytest
 import toml
 from suit.collector import (
     RootDirectoryNotFound,
-    Target,
     SuitCollector,
+    Target,
     _find_root_directory,
     _pyproject_uses_suit,
 )
@@ -38,8 +38,9 @@ def test_find_pyproject_toml_with_suit_configured():
         pyproject_toml_file_mock(path="packages/notsuit", content={}),
     )
     collector = SuitCollector(root)
-    results = list(collector.collect())
-    assert results == [Target(root=root, target_path=suit_project_file, target_data={})]
+    results = collector.collect()
+    assert results.root == root
+    assert results.targets == [Target(path=suit_project_file, data={})]
 
 
 def test_is_pyproject_uses_suit():
