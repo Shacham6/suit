@@ -4,6 +4,9 @@ requires = ["setuptools", "wheel", "versioningit"]
 
 # Dynamic Versioning
 [tool.versioningit]
+[tool.versioningit.write]
+file = "src/suit/__version__.py"
+
 [tool.versioningit.vcs]
 default-tag = "0.0.1"
 match = ["v*"]
