@@ -76,7 +76,7 @@ class SuitCollector:
                 if not _pyproject_uses_suit(project_data):
                     continue
                 yield _TargetConfig(
-                    path=found_project_file,
+                    path=found_project_file.parent,
                     data=project_data["tool"]["suit"],
                 )
 
