@@ -47,9 +47,7 @@ def _find_root_configuration(cwd: Optional[pathlib.Path] = None) -> pathlib.Path
 
 class RootDirectoryNotFound(Exception):
     def __init__(self, searched_paths: List[pathlib.Path]):
-        super().__init__(
-            f"Could not find `suit.toml` file, that signifies root directory. Searched: {searched_paths}"
-        )
+        super().__init__(f"Could not find `suit.toml` file, that signifies root directory. Searched: {searched_paths}")
         self.searched_paths = searched_paths
 
 
@@ -160,19 +158,13 @@ class Target:
 
         scripts = {}
         for script_name, value in raw_scripts_config.items():
-            scripts[script_name] = TargetScript.compile_inline(
-                value, self.__suit, self.__raw_target
-            )
+            scripts[script_name] = TargetScript.compile_inline(value, self.__suit, self.__raw_target)
 
         for template_name in raw_target.data.get("target", {}).get("inherit", []):
             if template_name not in suit.templates:
                 raise ValueError(f"Template {template_name!r} not found")
-            for script_name, value in (
-                suit.templates[template_name].get("scripts", {}).items()
-            ):
-                scripts[script_name] = TargetScript.compile_inline(
-                    value, self.__suit, self.__raw_target
-                )
+            for script_name, value in suit.templates[template_name].get("scripts", {}).items():
+                scripts[script_name] = TargetScript.compile_inline(value, self.__suit, self.__raw_target)
 
         self.__scripts = scripts
 
@@ -192,9 +184,7 @@ class TargetScript(NamedTuple):
     args: Box
 
     @staticmethod
-    def compile_inline(
-        raw_cmd: str, suit: Suit, raw_target: _TargetConfig
-    ) -> TargetScript:
+    def compile_inline(raw_cmd: str, suit: Suit, raw_target: _TargetConfig) -> TargetScript:
         return TargetScript(
             cmd=raw_cmd,
             root=Box(
@@ -209,9 +199,7 @@ class TargetScript(NamedTuple):
     def execute(self) -> ScriptExecution:
         return ScriptExecution(
             Popen(
-                shlex.split(
-                    self.cmd.format(root=self.root, local=self.local, args=self.args)
-                ),
+                shlex.split(self.cmd.format(root=self.root, local=self.local, args=self.args)),
                 stdout=PIPE,
                 stderr=PIPE,
             )
@@ -226,10 +214,7 @@ class Targets(Mapping[str, Target]):
         self.__suit_ref = suit_ref
 
         suit = self.__follow_suit_ref()
-        self.__canonized = {
-            str(raw_target.path.relative_to(suit.root)): raw_target
-            for raw_target in suit.raw_targets
-        }
+        self.__canonized = {str(raw_target.path.relative_to(suit.root)): raw_target for raw_target in suit.raw_targets}
 
     def __follow_suit_ref(self) -> Suit:
         if not (suit := self.__suit_ref()):

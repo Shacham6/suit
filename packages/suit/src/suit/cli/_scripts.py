@@ -25,9 +25,7 @@ def cli_scripts():
     pass
 
 
-def __to_patterns(
-    ctx: click.Context, param: click.Parameter, value: Tuple[str, ...]
-) -> _Patterns:
+def __to_patterns(ctx: click.Context, param: click.Parameter, value: Tuple[str, ...]) -> _Patterns:
     return _Patterns(value)
 
 
@@ -81,9 +79,7 @@ def cli_list_scripts(target_patterns: _Patterns, should_print_json: bool = False
     callback=__to_patterns,
 )
 @click.option("--dry-run", "is_dry_run", is_flag=True, type=bool)
-def cli_run_scripts(
-    scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry_run: bool = False
-):
+def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry_run: bool = False):
     if not scripts:
         raise click.UsageError("Must provide scripts to run!")
     suit = SuitCollector.find_root().collect()
@@ -97,17 +93,13 @@ def cli_run_scripts(
             for target_script_name, target_script in target.scripts.items():
                 if not script_pattern.search(target_script_name):
                     continue
-                found.append(
-                    (target_name, target_script_name, cast(TargetScript, target_script))
-                )
+                found.append((target_name, target_script_name, cast(TargetScript, target_script)))
 
     for target_name, target_script_name, target_script in found:
         console.log(
             Text.assemble(
                 "Will run '",
-                Text.assemble(
-                    target_name, ":", target_script_name, style="yellow italic"
-                ),
+                Text.assemble(target_name, ":", target_script_name, style="yellow italic"),
                 "'...",
             )
         )
@@ -134,9 +126,7 @@ def cli_run_scripts(
             console.log(err_text)
 
         if return_code != 0:
-            console.log(
-                f"[red]Target script exited with return-code [bold]{return_code}[/][/]"
-            )
+            console.log(f"[red]Target script exited with return-code [bold]{return_code}[/][/]")
             exit(return_code)
 
 
