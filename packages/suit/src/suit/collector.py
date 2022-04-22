@@ -44,13 +44,13 @@ class SuitCollector:
                 project_data = tomli.load(found_project_file_io)
                 if not _pyproject_uses_suit(project_data):
                     continue
-                yield Target(
+                yield _TargetConfig(
                     path=found_project_file,
                     data=project_data["tool"]["suit"],
                 )
 
 
-class Target(NamedTuple):
+class _TargetConfig(NamedTuple):
     """
     A project target.
     """
@@ -66,7 +66,7 @@ class Suit(NamedTuple):
 
     root: pathlib.Path
     local_config: Mapping[str, Any]
-    targets: List[Target]
+    targets: List[_TargetConfig]
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:

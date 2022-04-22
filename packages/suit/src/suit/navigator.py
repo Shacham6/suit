@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from suit.collector import Suit
+from suit.collector import Suit, _TargetConfig
 
 
 class SuitNavigator:
@@ -18,3 +18,4 @@ class _SuitTargetsNavigator:
 
     def find(self, pattern):
         return self.__suit.targets
+
