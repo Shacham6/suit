@@ -8,7 +8,7 @@ from suit.collector import (
     RootDirectoryNotFound,
     SuitCollector,
     Target,
-    _find_root_directory,
+    _find_root_configuration,
     _pyproject_uses_suit,
 )
 
@@ -37,7 +37,7 @@ def test_find_pyproject_toml_with_suit_configured():
         suit_project_file,
         pyproject_toml_file_mock(path="packages/notsuit", content={}),
     )
-    collector = SuitCollector(root)
+    collector = SuitCollector(root, {})
     results = collector.collect()
     assert results.root == root
     assert results.targets == [Target(path=suit_project_file, data={})]
@@ -61,7 +61,7 @@ def test_find_root_directory_of_project():
 
     starting_file_path.parents = [MagicMock(), MagicMock(), root, MagicMock()]
 
-    _find_root_directory(starting_file)
+    _find_root_configuration(starting_file)
 
 
 def test_find_root_directory_of_project_raises_when_not_found():
@@ -76,5 +76,5 @@ def test_find_root_directory_of_project_raises_when_not_found():
     starting_path.parents = a, b, c
 
     with pytest.raises(RootDirectoryNotFound) as result:
-        _find_root_directory(starting_path)
+        _find_root_configuration(starting_path)
     assert result.value.searched_paths == [starting_path, a, b, c]
