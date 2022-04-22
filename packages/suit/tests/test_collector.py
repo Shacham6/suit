@@ -1,6 +1,6 @@
 import io
 import pathlib
-from typing import Any, Mapping
+from typing import Any, Iterable, List, Mapping
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,6 +9,8 @@ from suit.collector import (
     RootDirectoryNotFound,
     Suit,
     SuitCollector,
+    Target,
+    Targets,
     _find_root_configuration,
     _pyproject_uses_suit,
     _TargetConfig,
@@ -94,4 +96,31 @@ def test_targets_calculation_relative_to_root():
     assert list(suit.targets.keys()) == [
         "packages/package-a",
         "packages/package-b",
+    ]
+
+
+def __targets_to_names(targets: Iterable[Target]) -> List[str]:
+    return [target.name for target in targets]
+
+
+def test_filter_targets():
+    suit = Suit(
+        root=pathlib.Path("root/"),
+        local_config={},
+        raw_targets=[
+            _TargetConfig(pathlib.Path("root/packages/package-a"), {}),
+            _TargetConfig(pathlib.Path("root/packages/package-b"), {}),
+            _TargetConfig(pathlib.Path("root/tools/tool-a"), {}),
+        ],
+    )
+    assert __targets_to_names(suit.targets.find("packages")) == [
+        "packages/package-a",
+        "packages/package-b",
+    ]
+    assert __targets_to_names(suit.targets.find("tools")) == [
+        "tools/tool-a",
+    ]
+
+    assert __targets_to_names(suit.targets.find("packages/package-a")) == [
+        "packages/package-a",
     ]

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import fnmatch
 import functools
 import pathlib
+import re
 import weakref
-from typing import Any, Iterator, List, Mapping, NamedTuple, Optional
+from typing import Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional
 
 import tomli
 
@@ -122,8 +124,14 @@ class Suit:
 
 
 class Target:
-    def __init__(self):
-        pass
+    def __init__(self, name: str, suit: Suit, raw_target: _TargetConfig):
+        self.__name = name
+        self.__suit = suit
+        self.__raw_target = raw_target
+
+    @property
+    def name(self) -> str:
+        return self.__name
 
 
 class Targets(Mapping[str, Target]):
@@ -133,19 +141,34 @@ class Targets(Mapping[str, Target]):
     ):
         self.__suit_ref = suit_ref
 
-        if not (suit := self.__suit_ref()):
-            raise ValueError("Provided suit reference invalid")
-
+        suit = self.__follow_suit_ref()
         self.__canonized = {
             str(raw_target.path.relative_to(suit.root)): raw_target
             for raw_target in suit.raw_targets
         }
 
+    def __follow_suit_ref(self) -> Suit:
+        if not (suit := self.__suit_ref()):
+            raise ValueError("Provided suit reference invalid")
+        return suit
+
     def __getitem__(self, __k: str) -> Target:
-        return Target()
+        return Target(__k, self.__follow_suit_ref(), self.__canonized[__k])
 
     def __iter__(self) -> Iterator[str]:
         return iter(self.__canonized)
 
     def __len__(self) -> int:
         return len(self.__canonized)
+
+    def find(self, pattern: str) -> Iterable[Target]:
+        re_pattern = re.compile(pattern)
+        return (
+            Target(
+                name,
+                self.__follow_suit_ref(),
+                self.__canonized[name],
+            )
+            for name in self.__canonized
+            if re_pattern.search(name)
+        )
