@@ -7,6 +7,33 @@ from typing import Any, List, Mapping, NamedTuple, Optional
 import tomli
 
 
+def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
+    return "suit" in pyproject_data.get("tool", {})
+
+
+def _find_root_configuration(cwd: Optional[pathlib.Path] = None) -> pathlib.Path:
+    if not cwd:
+        cwd = pathlib.Path.cwd()
+
+    if cwd.is_file():
+        cwd = cwd.parent
+
+    searched_paths = [cwd, *cwd.parents]
+    for loc in searched_paths:
+        suit_file = loc.joinpath("suit.toml")
+        if suit_file.exists():
+            return suit_file
+    raise RootDirectoryNotFound(searched_paths=searched_paths)
+
+
+class RootDirectoryNotFound(Exception):
+    def __init__(self, searched_paths: List[pathlib.Path]):
+        super().__init__(
+            f"Could not find `suit.toml` file, that signifies root directory. Searched: {searched_paths}"
+        )
+        self.searched_paths = searched_paths
+
+
 class SuitCollector:
     """
     Collect the entire array of suit configurations.
@@ -84,30 +111,3 @@ class Targets:
         self.__root = root
         self.__local_config = local_config
         self.__raw_targets = raw_targets
-
-
-def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
-    return "suit" in pyproject_data.get("tool", {})
-
-
-def _find_root_configuration(cwd: Optional[pathlib.Path] = None) -> pathlib.Path:
-    if not cwd:
-        cwd = pathlib.Path.cwd()
-
-    if cwd.is_file():
-        cwd = cwd.parent
-
-    searched_paths = [cwd, *cwd.parents]
-    for loc in searched_paths:
-        suit_file = loc.joinpath("suit.toml")
-        if suit_file.exists():
-            return suit_file
-    raise RootDirectoryNotFound(searched_paths=searched_paths)
-
-
-class RootDirectoryNotFound(Exception):
-    def __init__(self, searched_paths: List[pathlib.Path]):
-        super().__init__(
-            f"Could not find `suit.toml` file, that signifies root directory. Searched: {searched_paths}"
-        )
-        self.searched_paths = searched_paths
