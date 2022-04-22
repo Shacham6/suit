@@ -17,5 +17,5 @@ class _SuitTargetsNavigator:
         self.__suit = suit
 
     def find(self, pattern):
-        return self.__suit.targets
+        return self.__suit.raw_targets
 

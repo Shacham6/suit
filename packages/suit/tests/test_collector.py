@@ -40,7 +40,7 @@ def test_find_pyproject_toml_with_suit_configured():
     collector = SuitCollector(root, {})
     results = collector.collect()
     assert results.root == root
-    assert results.targets == [_TargetConfig(path=suit_project_file, data={})]
+    assert results.raw_targets == [_TargetConfig(path=suit_project_file, data={})]
 
 
 def test_is_pyproject_uses_suit():

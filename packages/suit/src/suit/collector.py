@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import pathlib
 from typing import Any, List, Mapping, NamedTuple, Optional
 
@@ -35,7 +36,7 @@ class SuitCollector:
         return Suit(
             self.__root,
             local_config=self.__local_config,
-            targets=list(self.__collect_targets()),
+            raw_targets=list(self.__collect_targets()),
         )
 
     def __collect_targets(self):
@@ -66,7 +67,23 @@ class Suit(NamedTuple):
 
     root: pathlib.Path
     local_config: Mapping[str, Any]
-    targets: List[_TargetConfig]
+    raw_targets: List[_TargetConfig]
+
+    @functools.cached_property
+    def targets(self) -> Targets:
+        return Targets(self.root, self.local_config, self.raw_targets)
+
+
+class Targets:
+    def __init__(
+        self,
+        root: pathlib.Path,
+        local_config: Mapping[str, Any],
+        raw_targets: List[_TargetConfig],
+    ):
+        self.__root = root
+        self.__local_config = local_config
+        self.__raw_targets = raw_targets
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:

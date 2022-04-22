@@ -9,7 +9,7 @@ def test_list_all_targets():
     suit = Suit(
         root=pathlib.Path("root/"),
         local_config={},
-        targets=[
+        raw_targets=[
             _TargetConfig(pathlib.Path("root/packages/package-a"), {}),
             _TargetConfig(pathlib.Path("root/packages/package-b"), {}),
             _TargetConfig(pathlib.Path("root/tools/tool-a"), {}),
