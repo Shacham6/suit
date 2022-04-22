@@ -186,3 +186,33 @@ def test_execute_script():
     )
     script_execution = target_script.execute()
     assert cast(bytes, script_execution.stdout.read()).decode("utf-8") == "lol root\n"
+
+
+def test_script_inheritance():
+    target_config = _TargetConfig(
+        pathlib.Path("root/packages/package-a"),
+        {
+            "target": {
+                "inherit": ["helloer"],
+            }
+        },
+    )
+    project_config = {
+        "templates": {
+            "helloer": {
+                "scripts": {
+                    "hello": "echo I'm a helloer from {local.path}",
+                }
+            }
+        }
+    }
+    suit = Suit(pathlib.Path("root/"), project_config, [target_config])
+
+    assert suit.targets["packages/package-a"].scripts == {
+        "hello": TargetScript(
+            "echo I'm a helloer from {local.path}",
+            Box(path=pathlib.Path("root/")),
+            Box(path=pathlib.Path("packages/package-a")),
+            Box(),
+        )
+    }
