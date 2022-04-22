@@ -1,4 +1,5 @@
 import json
+from typing import Tuple
 
 import click
 import click_default_group
@@ -22,7 +23,9 @@ def cli_scripts():
 
 @cli_scripts.command("list")
 @click.option("--json", "should_print_json", type=bool, is_flag=True)
-def cli_list_scripts(should_print_json: bool = False):
+@click.option("-t", "--target-pattern", "target_patterns", type=str, multiple=True)
+def cli_list_scripts(target_patterns: Tuple[str, ...], should_print_json: bool = False):
+    print(target_patterns)
     suit = SuitCollector.find_root().collect()
     scripts = {}
 
