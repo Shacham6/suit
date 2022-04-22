@@ -1,3 +1,7 @@
 [build-system]
-requires = ["setuptools", "wheel", "setuptools_scm[toml]"]
 backend = "setuptools.build_meta"
+requires = ["setuptools", "wheel", "setuptools_scm[toml]"]
+
+[tool.setuptools_scm]
+tag_regex = "v(?P<version>.*)"
+write_to = "src/suit/__version__.py"

@@ -211,3 +211,6 @@ fabric.properties
 .vscode/
 package-lock.json
 .DS_Store
+
+# Generated version file
+**/__version__.py
