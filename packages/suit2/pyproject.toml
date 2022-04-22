@@ -1,0 +1,3 @@
+
+[tool.suit.target]
+inherit = ["package"]

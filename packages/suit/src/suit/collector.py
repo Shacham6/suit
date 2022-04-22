@@ -17,6 +17,7 @@ from typing import (
     Mapping,
     NamedTuple,
     Optional,
+    Union,
     cast,
 )
 
@@ -166,7 +167,9 @@ class Target:
         for template_name in raw_target.data.get("target", {}).get("inherit", []):
             if template_name not in suit.templates:
                 raise ValueError(f"Template {template_name!r} not found")
-            for script_name, value in suit.templates[template_name].get("scripts", {}).items():
+            for script_name, value in (
+                suit.templates[template_name].get("scripts", {}).items()
+            ):
                 scripts[script_name] = TargetScript.compile_inline(
                     value, self.__suit, self.__raw_target
                 )
@@ -178,7 +181,7 @@ class Target:
         return self.__name
 
     @property
-    def scripts(self) -> Mapping[str, Any]:
+    def scripts(self) -> Mapping[str, TargetScript]:
         return self.__scripts
 
 
@@ -262,9 +265,16 @@ class ScriptExecution:
         self.__stderr = self.__process.stderr
 
     @property
-    def stdout(self) -> IO[AnyStr]:
-        return cast(IO[AnyStr], self.__stdout)
+    def stdout(self) -> IO[bytes]:
+        return cast(IO[bytes], self.__stdout)
 
     @property
-    def stderr(self):
-        return cast(IO[AnyStr], self.__stderr)
+    def stderr(self) -> IO[bytes]:
+        return cast(IO[bytes], self.__stderr)
+
+    def wait(self, timeout: Optional[float] = None):
+        return self.__process.wait(timeout)
+
+    @property
+    def returncode(self) -> int:
+        return self.__process.returncode
