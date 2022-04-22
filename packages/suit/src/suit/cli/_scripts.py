@@ -37,7 +37,7 @@ def cli_list_scripts(should_print_json: bool = False):
     table = Table(
         Column("Scripts", justify="center", style="magenta"),
         Column("Targets", justify="center", style="italic"),
-        show_edge=False,
+        show_edge=True,
         box=rich.table.box.SIMPLE,
     )
 
