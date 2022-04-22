@@ -13,6 +13,7 @@ from rich.table import Column, Table
 from rich.text import Text
 from suit.collector import SuitCollector, TargetScript
 from suit.console import console
+from suit.cli.executor import TargetScriptExecutor, ExecutionPlanStage
 
 
 @click.group(
@@ -84,7 +85,7 @@ def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry
         raise click.UsageError("Must provide scripts to run!")
     suit = SuitCollector.find_root().collect()
 
-    found: List[Tuple[str, str, TargetScript]] = []
+    found: List[ExecutionPlanStage] = []
     for script_name in scripts:
         for target_name, target in suit.targets.items():
             if not target_patterns.match(target_name):
@@ -92,41 +93,8 @@ def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry
             for target_script_name, target_script in target.scripts.items():
                 if script_name != target_script_name:
                     continue
-                found.append((target_name, target_script_name, cast(TargetScript, target_script)))
-
-    for target_name, target_script_name, target_script in found:
-        console.log(
-            Text.assemble(
-                "Will run '",
-                Text.assemble(target_name, ":", target_script_name, style="yellow italic"),
-                "'...",
-            )
-        )
-        if is_dry_run:
-            continue
-        result = target_script.execute()
-        return_code = result.wait()
-        for out_line_bytes in result.stdout:
-            out_line = out_line_bytes.decode("utf-8")
-            out_text = Text.assemble(
-                ("OUT | ", "bold"),
-                out_line.rstrip("\n"),
-            )
-            out_text.pad_left(4)
-            console.log(out_text)
-
-        for err_line_bytes in result.stderr:
-            err_line = err_line_bytes.decode("utf-8")
-            err_text = Text.assemble(
-                ("ERR | ", "red bold"),
-                err_line.rstrip("\n"),
-            )
-            err_text.pad_left(4)
-            console.log(err_text)
-
-        if return_code != 0:
-            console.log(f"[red]Target script exited with return-code [bold]{return_code}[/][/]")
-            exit(return_code)
+                found.append(ExecutionPlanStage(target_name, target_script_name, target_script))
+    TargetScriptExecutor(found).execute(is_dry_run=is_dry_run)
 
 
 class _Patterns:

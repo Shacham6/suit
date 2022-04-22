@@ -1,25 +1,11 @@
 from __future__ import annotations
 
-import fnmatch
-import functools
 import pathlib
 import re
 import shlex
 import weakref
 from subprocess import PIPE, Popen
-from typing import (
-    IO,
-    Any,
-    AnyStr,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    NamedTuple,
-    Optional,
-    Union,
-    cast,
-)
+from typing import IO, Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional, cast
 
 import rich.repr
 import tomli
