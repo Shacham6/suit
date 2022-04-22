@@ -2,7 +2,7 @@ from rich.panel import Panel
 from suit import Runtime, Scope
 
 
-class lint:
+class Lint:
     def __init__(self, location: str):
         self.__location = location
 
@@ -15,7 +15,7 @@ class lint:
             runtime.info("Finished linting using `black`!")
 
 
-class format_:
+class Format:
     def __init__(self, location: str):
         self.__location = location
 

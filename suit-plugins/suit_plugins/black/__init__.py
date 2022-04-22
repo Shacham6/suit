@@ -1,1 +1,1 @@
-from ._impl import lint, format_
+from ._impl import Lint, Format

@@ -9,3 +9,8 @@ tests = suit("tests", pytest.pytest("tests", color="yes"))
 install_requires = suit(
     "install-requires", install_requires.InstallRequires("requirements.txt")
 )
+
+
+@suit("whatever")
+def something(runtime, scope):
+    pass
