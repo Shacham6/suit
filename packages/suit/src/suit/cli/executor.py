@@ -49,8 +49,12 @@ class TargetScriptExecutor:
 
             if return_code != 0:
                 console.log(f"[red]Target script exited with return-code [bold]{return_code}[/][/]")
-                raise CommandFailedError()
+                raise ScriptFailedError(target_name, target_script_name, return_code)
 
 
-class CommandFailedError(Exception):
-    pass
+class ScriptFailedError(Exception):
+    def __init__(self, target_name: str, script_name: str, return_code: int):
+        super().__init__(f"Script '{target_name}:{script_name}' failed with return-code {return_code}")
+        self.target_name = target_name
+        self.script_name = script_name
+        self.return_code = return_code

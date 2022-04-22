@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from typing import Iterable, List, Tuple, cast
 
 import click
@@ -11,9 +12,9 @@ from rich.console import Group
 from rich.padding import Padding
 from rich.table import Column, Table
 from rich.text import Text
+from suit.cli.executor import ExecutionPlanStage, ScriptFailedError, TargetScriptExecutor
 from suit.collector import SuitCollector, TargetScript
 from suit.console import console
-from suit.cli.executor import TargetScriptExecutor, ExecutionPlanStage
 
 
 @click.group(
@@ -85,7 +86,7 @@ def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry
         raise click.UsageError("Must provide scripts to run!")
     suit = SuitCollector.find_root().collect()
 
-    found: List[ExecutionPlanStage] = []
+    found = []
     for script_name in scripts:
         for target_name, target in suit.targets.items():
             if not target_patterns.match(target_name):
@@ -93,8 +94,13 @@ def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry
             for target_script_name, target_script in target.scripts.items():
                 if script_name != target_script_name:
                     continue
+
+                # target_script.execute()
                 found.append(ExecutionPlanStage(target_name, target_script_name, target_script))
-    TargetScriptExecutor(found).execute(is_dry_run=is_dry_run)
+    try:
+        TargetScriptExecutor(found).execute(is_dry_run=is_dry_run)
+    except ScriptFailedError as script_failed:
+        sys.exit(script_failed.return_code)
 
 
 class _Patterns:
