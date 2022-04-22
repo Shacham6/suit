@@ -73,9 +73,7 @@ class Suit(NamedTuple):
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
-    if "suit" not in pyproject_data.get("tool", {}):
-        return False
-    return True
+    return "suit" in pyproject_data.get("tool", {})
 
 
 def _find_root_configuration(cwd: Optional[pathlib.Path] = None) -> pathlib.Path:
