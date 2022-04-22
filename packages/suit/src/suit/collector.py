@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import pathlib
-from typing import Any, List, Mapping, NamedTuple, Optional, Type
+from typing import Any, List, Mapping, NamedTuple, Optional
 
 import tomli
-from typing_extensions import Self
 
 
 class SuitCollector:
@@ -17,9 +16,7 @@ class SuitCollector:
         self.__local_config = local_configurations
 
     @classmethod
-    def find_root(
-        cls: Type[Self], starting_search_location: Optional[pathlib.Path] = None
-    ) -> Self:
+    def find_root(cls, starting_search_location: Optional[pathlib.Path] = None):
         """
         Search and initialize the collector at the root of the project.
         """
