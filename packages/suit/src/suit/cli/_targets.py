@@ -1,8 +1,7 @@
 import click
-
+from rich.table import Column, Table
 from suit.collector import SuitCollector
 from suit.console import console
-from rich.table import Table, Column
 
 
 @click.group("targets")
@@ -20,7 +19,7 @@ def cli_list_targets(raw_print: bool):
             console.print(target.name)
         return
 
-    table = Table(Column("Target", justify="center"), show_edge=False)
+    table = Table(Column("Target", justify="center", style="magenta"), show_edge=False)
     for _, target in suit.targets.items():
         table.add_row(target.name)
     console.print(table)
