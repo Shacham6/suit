@@ -1,6 +1,6 @@
 [suit]
 
-[suit.templates.packages.scripts]
+[suit.templates.package.scripts]
 lint = "black check --config {root.path} {local.path}"
 
 # [suit.templates.package.scripts.lint]
