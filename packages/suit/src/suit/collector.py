@@ -5,9 +5,9 @@ from typing import Any, Iterable, List, Mapping, NamedTuple
 import tomli
 
 
-class TargetsCollector:
+class SuitCollector:
     """
-    Collector of Suit Targets.
+    Collect the entire array of suit configurations.
     """
 
     def __init__(self, root: pathlib.Path):
