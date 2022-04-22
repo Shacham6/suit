@@ -10,6 +10,7 @@ def cli():
 
 cli.add_command(_targets.cli_targets)
 cli.add_command(_scripts.cli_scripts)
+cli.add_command(_scripts.cli_run_scripts)
 
 if __name__ == "__main__":
     cli()

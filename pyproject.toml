@@ -1,4 +1,7 @@
-[tool.suit]
+[tool.suit.target.scripts]
+prepare_dev = """
+pip install -r {root.path}/requirements-dev.txt
+"""
 
 [tool.black]
 line-length = 119
