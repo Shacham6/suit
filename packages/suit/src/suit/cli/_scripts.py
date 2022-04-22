@@ -118,18 +118,18 @@ def cli_run_scripts(
         for out_line_bytes in result.stdout:
             out_line = out_line_bytes.decode("utf-8")
             out_text = Text.assemble(
-                    ("OUT | ", "bold"),
-                    out_line.rstrip("\n"),
-                )
+                ("OUT | ", "bold"),
+                out_line.rstrip("\n"),
+            )
             out_text.pad_left(4)
             console.log(out_text)
 
         for err_line_bytes in result.stderr:
             err_line = err_line_bytes.decode("utf-8")
             err_text = Text.assemble(
-                    ("OUT | ", "bold"),
-                    err_line.rstrip("\n"),
-                )
+                ("ERR | ", "red bold"),
+                err_line.rstrip("\n"),
+            )
             err_text.pad_left(4)
             console.log(err_text)
 
