@@ -4,8 +4,21 @@ import fnmatch
 import functools
 import pathlib
 import re
+import shlex
 import weakref
-from typing import Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional
+from subprocess import PIPE, Popen
+from typing import (
+    IO,
+    Any,
+    AnyStr,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    NamedTuple,
+    Optional,
+    cast,
+)
 
 import rich.repr
 import tomli
@@ -137,9 +150,7 @@ class Target:
         self.__suit = suit
         self.__raw_target = raw_target
 
-        raw_scripts_config = (
-            raw_target.data.get("target", {}).get("scripts", {})
-        )
+        raw_scripts_config = raw_target.data.get("target", {}).get("scripts", {})
         self.__scripts = {
             name: TargetScript.compile_inline(value, self.__suit, self.__raw_target)
             for name, value in raw_scripts_config.items()
@@ -173,6 +184,17 @@ class TargetScript(NamedTuple):
                 path=raw_target.path,
             ),
             args=Box(),
+        )
+
+    def execute(self) -> ScriptExecution:
+        return ScriptExecution(
+            Popen(
+                shlex.split(
+                    self.cmd.format(root=self.root, local=self.local, args=self.args)
+                ),
+                stdout=PIPE,
+                stderr=PIPE,
+            )
         )
 
 
@@ -214,3 +236,18 @@ class Targets(Mapping[str, Target]):
             for name in self.__canonized
             if re_pattern.search(name)
         )
+
+
+class ScriptExecution:
+    def __init__(self, process: Popen):
+        self.__process = process
+        self.__stdout = self.__process.stdout
+        self.__stderr = self.__process.stderr
+
+    @property
+    def stdout(self) -> IO[AnyStr]:
+        return cast(IO[AnyStr], self.__stdout)
+
+    @property
+    def stderr(self):
+        return cast(IO[AnyStr], self.__stderr)

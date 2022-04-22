@@ -1,7 +1,7 @@
 import io
 import pathlib
 import string
-from typing import Any, Iterable, List, Mapping
+from typing import Any, Iterable, List, Mapping, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -178,3 +178,11 @@ def test_compile_target_script():
         local=Box(path=pathlib.Path("root/packages/package-a")),
         args=Box(),
     )
+
+
+def test_execute_script():
+    target_script = TargetScript(
+        "echo 'lol {root.path}'", Box(path=pathlib.Path("root/")), Box(), Box()
+    )
+    script_execution = target_script.execute()
+    assert cast(bytes, script_execution.stdout.read()).decode("utf-8") == "lol root\n"
