@@ -121,6 +121,7 @@ class Suit:
         self.__project_config = project_config
         self.__raw_targets = raw_targets
         self.__targets = Targets(weakref.ref(self))
+        self.__templates = project_config.get("templates", {})
 
     @property
     def root(self) -> pathlib.Path:
@@ -138,6 +139,10 @@ class Suit:
     def targets(self) -> Targets:
         return self.__targets
 
+    @property
+    def templates(self) -> Mapping[str, Any]:
+        return self.__templates
+
     def __rich_repr__(self) -> rich.repr.RichReprResult:
         yield "root", self.__root
         yield "project_config", self.__project_config
@@ -151,10 +156,22 @@ class Target:
         self.__raw_target = raw_target
 
         raw_scripts_config = raw_target.data.get("target", {}).get("scripts", {})
-        self.__scripts = {
-            name: TargetScript.compile_inline(value, self.__suit, self.__raw_target)
-            for name, value in raw_scripts_config.items()
-        }
+
+        scripts = {}
+        for script_name, value in raw_scripts_config.items():
+            scripts[script_name] = TargetScript.compile_inline(
+                value, self.__suit, self.__raw_target
+            )
+
+        for template_name in raw_target.data.get("target", {}).get("inherit", []):
+            if template_name not in suit.templates:
+                raise ValueError(f"Template {template_name!r} not found")
+            for script_name, value in suit.templates[template_name].get("scripts", {}).items():
+                scripts[script_name] = TargetScript.compile_inline(
+                    value, self.__suit, self.__raw_target
+                )
+
+        self.__scripts = scripts
 
     @property
     def name(self) -> str:

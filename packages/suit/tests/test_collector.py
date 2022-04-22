@@ -212,7 +212,7 @@ def test_script_inheritance():
         "hello": TargetScript(
             "echo I'm a helloer from {local.path}",
             Box(path=pathlib.Path("root/")),
-            Box(path=pathlib.Path("packages/package-a")),
+            Box(path=pathlib.Path("root/packages/package-a")),
             Box(),
         )
     }
