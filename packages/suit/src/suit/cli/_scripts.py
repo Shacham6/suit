@@ -114,7 +114,7 @@ def cli_run_scripts(
         if is_dry_run:
             continue
         result = target_script.execute()
-        result.wait()
+        return_code = result.wait()
         for out_line_bytes in result.stdout:
             out_line = out_line_bytes.decode("utf-8")
             out_text = Text.assemble(
@@ -132,6 +132,12 @@ def cli_run_scripts(
             )
             err_text.pad_left(4)
             console.log(err_text)
+
+        if return_code != 0:
+            console.log(
+                f"[red]Target script exited with return-code [bold]{return_code}[/][/]"
+            )
+            exit(return_code)
 
 
 class _Patterns:

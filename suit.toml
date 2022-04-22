@@ -1,2 +1,9 @@
 [suit.templates.package.scripts]
-lint = "black check --config {root.path} {local.path}"
+
+lint = """
+black --check --config "{root.path}/pyproject.toml" "{local.path}/{args.package_dir}"
+"""
+
+format = """
+black --config "{root.path}/pyproject.toml" "{local.path}/{args.package_dir}"
+"""
