@@ -17,15 +17,21 @@ class SuitCollector:
         self.__local_config = local_configurations
 
     @classmethod
-    def for_root(
+    def find_root(
         cls: Type[Self], starting_search_location: Optional[pathlib.Path] = None
     ) -> Self:
+        """
+        Search and initialize the collector at the root of the project.
+        """
         if not starting_search_location:
             starting_search_location = pathlib.Path.cwd()
         local_config_file = _find_root_configuration(starting_search_location)
         with local_config_file.open("rb") as local_config_io:
             local_configurations = tomli.load(local_config_io)
-        return cls(root=local_config_file.parent, local_configurations=local_configurations)
+        return cls(
+            root=local_config_file.parent,
+            local_configurations=local_configurations["suit"],
+        )
 
     def collect(self) -> Suit:
         """Collect all targets in the directory structure"""
