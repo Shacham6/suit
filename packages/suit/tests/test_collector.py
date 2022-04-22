@@ -241,7 +241,7 @@ def test_args_are_passed_in_target():
 
     assert suit.targets["packages/package-a"].scripts == {
         "hello": TargetScript(
-            "echo I'm a helloer from {local.path}",
+            "echo I'm a helloer from {local.path}, and I'm here to say '{args.what_im_here_to_say}'",
             Box(path=pathlib.Path("root/")),
             Box(path=pathlib.Path("root/packages/package-a")),
             Box(what_im_here_to_say="praise the sun!!"),

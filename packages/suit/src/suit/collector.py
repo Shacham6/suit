@@ -203,7 +203,7 @@ class TargetScript(NamedTuple):
             local=Box(
                 path=raw_target.path,
             ),
-            args=Box(),
+            args=Box(raw_target.data.get("target", {}).get("args", {})),
         )
 
     def execute(self) -> ScriptExecution:
