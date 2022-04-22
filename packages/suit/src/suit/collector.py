@@ -9,6 +9,7 @@ from typing import Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional
 
 import rich.repr
 import tomli
+from box import Box
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
@@ -136,9 +137,43 @@ class Target:
         self.__suit = suit
         self.__raw_target = raw_target
 
+        raw_scripts_config = (
+            raw_target.data.get("target", {}).get("scripts", {})
+        )
+        self.__scripts = {
+            name: TargetScript.compile_inline(value, self.__suit, self.__raw_target)
+            for name, value in raw_scripts_config.items()
+        }
+
     @property
     def name(self) -> str:
         return self.__name
+
+    @property
+    def scripts(self) -> Mapping[str, Any]:
+        return self.__scripts
+
+
+class TargetScript(NamedTuple):
+    cmd: str
+    root: Box
+    local: Box
+    args: Box
+
+    @staticmethod
+    def compile_inline(
+        raw_cmd: str, suit: Suit, raw_target: _TargetConfig
+    ) -> TargetScript:
+        return TargetScript(
+            cmd=raw_cmd,
+            root=Box(
+                path=suit.root,
+            ),
+            local=Box(
+                path=raw_target.path,
+            ),
+            args=Box(),
+        )
 
 
 class Targets(Mapping[str, Target]):

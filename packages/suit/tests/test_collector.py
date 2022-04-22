@@ -1,16 +1,19 @@
 import io
 import pathlib
+import string
 from typing import Any, Iterable, List, Mapping
 from unittest.mock import MagicMock
 
 import pytest
 import toml
+from box import Box
 from suit.collector import (
     RootDirectoryNotFound,
     Suit,
     SuitCollector,
     Target,
     Targets,
+    TargetScript,
     _find_root_configuration,
     _pyproject_uses_suit,
     _TargetConfig,
@@ -19,6 +22,8 @@ from suit.collector import (
 
 def pyproject_toml_file_mock(*, path: str, content: Mapping[str, Any]) -> MagicMock:
     mock = MagicMock()
+    mock.is_file.return_value = True
+    mock.exists.return_value = True
 
     parent_mock = MagicMock()
     parent_mock.__str__.return_value = path
@@ -44,7 +49,9 @@ def test_find_pyproject_toml_with_suit_configured():
     collector = SuitCollector(root, {})
     results = collector.collect()
     assert results.root == root
-    assert results.raw_targets == [_TargetConfig(path=suit_project_file, data={})]
+    assert results.raw_targets == [
+        _TargetConfig(path=suit_project_file.parent, data={})
+    ]
 
 
 def test_is_pyproject_uses_suit():
@@ -124,3 +131,50 @@ def test_filter_targets():
     assert __targets_to_names(suit.targets.find("packages/package-a")) == [
         "packages/package-a",
     ]
+
+
+def test_target_script_compiled():
+    suit = Suit(
+        root=pathlib.Path("root/"),
+        project_config={},
+        raw_targets=[
+            _TargetConfig(
+                pathlib.Path("root/packages/package-a"),
+                {
+                    "target": {
+                        "scripts": {"format": "black --config {root.path} {local.path}"}
+                    }
+                },
+            )
+        ],
+    )
+    package_a_target = suit.targets["packages/package-a"]
+    assert package_a_target.scripts == {
+        "format": TargetScript(
+            "black --config {root.path} {local.path}",
+            root=Box(path=pathlib.Path("root/")),
+            local=Box(path=pathlib.Path("root/packages/package-a")),
+            args=Box(),
+        )
+    }
+
+
+def test_compile_target_script():
+    target_config = _TargetConfig(
+        pathlib.Path("root/packages/package-a"),
+        {"target": {"scripts": {"format": "black --config {root.path} {local.path}"}}},
+    )
+    suit = Suit(
+        root=pathlib.Path("root/"), project_config={}, raw_targets=[target_config]
+    )
+
+    result = TargetScript.compile_inline(
+        "black --config {root.path} {local.path}", suit, target_config
+    )
+
+    assert result == TargetScript(
+        cmd="black --config {root.path} {local.path}",
+        root=Box(path=pathlib.Path("root/")),
+        local=Box(path=pathlib.Path("root/packages/package-a")),
+        args=Box(),
+    )
