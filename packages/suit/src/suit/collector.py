@@ -57,13 +57,14 @@ def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
     return True
 
 
-def _find_root_directory(cwd: pathlib.Path = pathlib.Path.cwd()) -> pathlib.Path:
+def _find_root_configuration(cwd: pathlib.Path = pathlib.Path.cwd()) -> pathlib.Path:
     if cwd.is_file():
         cwd = cwd.parent
     searched_paths = [cwd, *cwd.parents]
     for loc in searched_paths:
-        if loc.joinpath("suit.toml").exists():
-            return loc
+        suit_file = loc.joinpath("suit.toml")
+        if suit_file.exists():
+            return suit_file
     raise RootDirectoryNotFound(searched_paths=searched_paths)
 
 
