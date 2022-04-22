@@ -116,9 +116,13 @@ class Targets(Mapping[str, Target]):
         suit_ref: weakref.ReferenceType[Suit],
     ):
         self.__suit_ref = suit_ref
+
+        if not (suit := self.__suit_ref()):
+            raise ValueError("Provided suit reference invalid")
+
         self.__canonized = {
-            str(raw_target.path.relative_to(self.__suit_ref().root)): raw_target
-            for raw_target in self.__suit_ref().raw_targets
+            str(raw_target.path.relative_to(suit.root)): raw_target
+            for raw_target in suit.raw_targets
         }
 
     def __getitem__(self, __k: str) -> Target:
