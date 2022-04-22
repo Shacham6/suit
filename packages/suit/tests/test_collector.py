@@ -87,7 +87,7 @@ def test_find_root_directory_of_project_raises_when_not_found():
 def test_targets_calculation_relative_to_root():
     suit = Suit(
         root=pathlib.Path("root/"),
-        local_config={},
+        project_config={},
         raw_targets=[
             _TargetConfig(pathlib.Path("root/packages/package-a"), {}),
             _TargetConfig(pathlib.Path("root/packages/package-b"), {}),
@@ -106,7 +106,7 @@ def __targets_to_names(targets: Iterable[Target]) -> List[str]:
 def test_filter_targets():
     suit = Suit(
         root=pathlib.Path("root/"),
-        local_config={},
+        project_config={},
         raw_targets=[
             _TargetConfig(pathlib.Path("root/packages/package-a"), {}),
             _TargetConfig(pathlib.Path("root/packages/package-b"), {}),

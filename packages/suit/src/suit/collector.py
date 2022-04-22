@@ -7,6 +7,7 @@ import re
 import weakref
 from typing import Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional
 
+import rich.repr
 import tomli
 
 
@@ -65,7 +66,7 @@ class SuitCollector:
         """Collect all targets in the directory structure"""
         return Suit(
             self.__root,
-            local_config=self.__local_config,
+            project_config=self.__local_config,
             raw_targets=list(self.__collect_targets()),
         )
 
@@ -90,6 +91,7 @@ class _TargetConfig(NamedTuple):
     data: Mapping[str, Any]
 
 
+@rich.repr.auto()
 class Suit:
     """
     The general suit configurations.
@@ -98,11 +100,11 @@ class Suit:
     def __init__(
         self,
         root: pathlib.Path,
-        local_config: Mapping[str, Any],
+        project_config: Mapping[str, Any],
         raw_targets: List[_TargetConfig],
     ):
         self.__root = root
-        self.__local_config = local_config
+        self.__project_config = project_config
         self.__raw_targets = raw_targets
         self.__targets = Targets(weakref.ref(self))
 
@@ -111,8 +113,8 @@ class Suit:
         return self.__root
 
     @property
-    def local_config(self) -> Mapping[str, Any]:
-        return self.__local_config
+    def project_config(self) -> Mapping[str, Any]:
+        return self.__project_config
 
     @property
     def raw_targets(self) -> List[_TargetConfig]:
@@ -121,6 +123,11 @@ class Suit:
     @property
     def targets(self) -> Targets:
         return self.__targets
+
+    def __rich_repr__(self) -> rich.repr.RichReprResult:
+        yield "root", self.__root
+        yield "project_config", self.__project_config
+        yield "raw_targets", self.__raw_targets
 
 
 class Target:
