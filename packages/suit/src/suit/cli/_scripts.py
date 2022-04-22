@@ -101,6 +101,8 @@ def cli_run_scripts(
                     (target_name, target_script_name, cast(TargetScript, target_script))
                 )
 
+    console.log(found)
+
     for target_name, target_script_name, target_script in found:
         console.log(
             Text.assemble(
