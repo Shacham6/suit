@@ -85,13 +85,12 @@ def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry
     suit = SuitCollector.find_root().collect()
 
     found: List[Tuple[str, str, TargetScript]] = []
-    for raw_script_pattern in scripts:
-        script_pattern = re.compile(raw_script_pattern)
+    for script_name in scripts:
         for target_name, target in suit.targets.items():
             if not target_patterns.match(target_name):
                 continue
             for target_script_name, target_script in target.scripts.items():
-                if not script_pattern.search(target_script_name):
+                if script_name != target_script_name:
                     continue
                 found.append((target_name, target_script_name, cast(TargetScript, target_script)))
 
