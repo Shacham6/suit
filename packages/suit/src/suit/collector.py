@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import functools
 import pathlib
-from typing import Any, List, Mapping, NamedTuple, Optional
+import weakref
+from typing import Any, Iterator, List, Mapping, NamedTuple, Optional
 
 import tomli
 
@@ -87,27 +88,44 @@ class _TargetConfig(NamedTuple):
     data: Mapping[str, Any]
 
 
-class Suit(NamedTuple):
+class Suit:
     """
     The general suit configurations.
     """
 
-    root: pathlib.Path
-    local_config: Mapping[str, Any]
-    raw_targets: List[_TargetConfig]
-
-    @functools.cached_property
-    def targets(self) -> Targets:
-        return Targets(self.root, self.local_config, self.raw_targets)
-
-
-class Targets:
     def __init__(
         self,
         root: pathlib.Path,
         local_config: Mapping[str, Any],
         raw_targets: List[_TargetConfig],
     ):
-        self.__root = root
-        self.__local_config = local_config
-        self.__raw_targets = raw_targets
+        self.root = root
+        self.local_config = local_config
+        self.raw_targets = raw_targets
+        self.targets = Targets(weakref.ref(self))
+
+
+class Target:
+    def __init__(self):
+        pass
+
+
+class Targets(Mapping[str, Target]):
+    def __init__(
+        self,
+        suit_ref: weakref.ReferenceType[Suit],
+    ):
+        self.__suit_ref = suit_ref
+        self.__canonized = {
+            str(raw_target.path.relative_to(self.__suit_ref().root)): raw_target
+            for raw_target in self.__suit_ref().raw_targets
+        }
+
+    def __getitem__(self, __k: str) -> Target:
+        return Target()
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.__canonized)
+
+    def __len__(self) -> int:
+        return len(self.__canonized)
