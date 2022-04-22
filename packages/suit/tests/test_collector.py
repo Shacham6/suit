@@ -216,3 +216,34 @@ def test_script_inheritance():
             Box(),
         )
     }
+
+
+def test_args_are_passed_in_target():
+    target_config = _TargetConfig(
+        pathlib.Path("root/packages/package-a"),
+        {
+            "target": {
+                "inherit": ["helloer"],
+                "args": {"what_im_here_to_say": "praise the sun!!"},
+            }
+        },
+    )
+    project_config = {
+        "templates": {
+            "helloer": {
+                "scripts": {
+                    "hello": "echo I'm a helloer from {local.path}, and I'm here to say '{args.what_im_here_to_say}'"
+                }
+            }
+        }
+    }
+    suit = Suit(pathlib.Path("root/"), project_config, [target_config])
+
+    assert suit.targets["packages/package-a"].scripts == {
+        "hello": TargetScript(
+            "echo I'm a helloer from {local.path}",
+            Box(path=pathlib.Path("root/")),
+            Box(path=pathlib.Path("root/packages/package-a")),
+            Box(what_im_here_to_say="praise the sun!!"),
+        )
+    }
