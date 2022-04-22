@@ -13,6 +13,7 @@ lint = [
     "lint-black",
 ]
 
+
 format-black = """
 black --config "{root.path}/pyproject.toml" "{local.path}/{args.package_dir}"
 """

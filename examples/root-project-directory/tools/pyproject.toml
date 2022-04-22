@@ -1,0 +1,4 @@
+[tool.suit.target.scripts]
+prepare-dev = "pip install -r {local.path}/requirements-dev.txt"
+lint = "black --check {local.path}/my_script.py"
+format = "black {local.path}/my_script.py"
