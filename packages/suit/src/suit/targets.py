@@ -20,6 +20,19 @@ class CompositeScriptSpec:
 ScriptSpec = Union[CompositeScriptSpec, ShellScriptSpec]
 
 
+def _process_scripts(scripts: Optional[Mapping[str, Union[str, Mapping[str, Any], ScriptSpec]]]):
+    if not scripts:
+        return {}
+    processed_scripts = {}
+    for script_name, script_input in scripts.items():
+        if isinstance(script_input, ScriptSpec):
+            processed_scripts[script_name] = script_input
+            continue
+
+        processed_scripts[script_name] = _build_script(script_input)
+    return processed_scripts
+
+
 def _build_script(script_data: Union[str, Mapping[str, Any]]):
     if isinstance(script_data, str):
         return ShellScriptSpec(script_data, {})
@@ -49,18 +62,7 @@ class TargetConfigData:
             args = {}
         object.__setattr__(self, "args", args)
 
-        if not scripts:
-            scripts = {}
-
-        processed_scripts = {}
-        for script_name, script_input in scripts.items():
-            if isinstance(script_input, ScriptSpec):
-                processed_scripts[script_name] = script_input
-                continue
-
-            processed_scripts[script_name] = _build_script(script_input)
-
-        object.__setattr__(self, "scripts", processed_scripts)
+        object.__setattr__(self, "scripts", _process_scripts(scripts))
 
 
 @dataclass
