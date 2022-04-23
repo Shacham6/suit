@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 from suit.collector import SuitConfig, SuitCollector, Target, TargetConfig
-from suit.scripts import resolve_scripts
+from suit.scripts import resolve_scripts, ShellScript
 
 
 def test_resolve_scripts():
@@ -14,3 +14,4 @@ def test_resolve_scripts():
     )
     suit = SuitConfig(pathlib.Path("root/"), {}, [target_config])
     scripts = resolve_scripts(suit, target_config)
+    assert scripts is None
