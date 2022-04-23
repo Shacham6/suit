@@ -11,11 +11,10 @@ from suit.collector import (
     SuitConfig,
     SuitCollector,
     Target,
-    TargetScript,
     _find_root_configuration,
     _pyproject_uses_suit,
-    TargetConfig,
 )
+from suit.targets import TargetConfig, TargetConfigData
 
 
 def pyproject_toml_file_mock(*, path: str, content: Mapping[str, Any]) -> MagicMock:
@@ -36,7 +35,10 @@ def pyproject_toml_file_mock(*, path: str, content: Mapping[str, Any]) -> MagicM
 def test_find_pyproject_toml_with_suit_configured():
     root = MagicMock()
 
-    suit_project_file = pyproject_toml_file_mock(path="packages/suit", content={"tool": {"suit": {}}})
+    suit_project_file = pyproject_toml_file_mock(
+        path="packages/suit",
+        content={"tool": {"suit": {"target": {}}}},
+    )
 
     root.glob.return_value = (
         suit_project_file,
@@ -45,11 +47,17 @@ def test_find_pyproject_toml_with_suit_configured():
     collector = SuitCollector(root, {})
     results = collector.collect()
     assert results.root == root
-    assert results.raw_targets == [TargetConfig(path=suit_project_file.parent, data={})]
+    assert results.raw_targets == [
+        TargetConfig(
+            path=suit_project_file.parent,
+            data=TargetConfigData(),
+        ),
+    ]
 
 
 def test_is_pyproject_uses_suit():
-    assert _pyproject_uses_suit({"tool": {"suit": {}}})
+    assert _pyproject_uses_suit({"tool": {"suit": {"target": {}}}})
+    assert not _pyproject_uses_suit({"tool": {"suit": {}}})
     assert not _pyproject_uses_suit({})
 
 
@@ -90,38 +98,11 @@ def test_targets_calculation_relative_to_root():
         root=pathlib.Path("root/"),
         project_config={},
         raw_targets=[
-            TargetConfig(pathlib.Path("root/packages/package-a"), {}),
-            TargetConfig(pathlib.Path("root/packages/package-b"), {}),
+            TargetConfig(pathlib.Path("root/packages/package-a"), TargetConfigData()),
+            TargetConfig(pathlib.Path("root/packages/package-b"), TargetConfigData()),
         ],
     )
     assert list(suit.targets.keys()) == [
         "packages/package-a",
         "packages/package-b",
-    ]
-
-
-def __targets_to_names(targets: Iterable[Target]) -> List[str]:
-    return [target.name for target in targets]
-
-
-def test_filter_targets():
-    suit = SuitConfig(
-        root=pathlib.Path("root/"),
-        project_config={},
-        raw_targets=[
-            TargetConfig(pathlib.Path("root/packages/package-a"), {}),
-            TargetConfig(pathlib.Path("root/packages/package-b"), {}),
-            TargetConfig(pathlib.Path("root/tools/tool-a"), {}),
-        ],
-    )
-    assert __targets_to_names(suit.targets.find("packages")) == [
-        "packages/package-a",
-        "packages/package-b",
-    ]
-    assert __targets_to_names(suit.targets.find("tools")) == [
-        "tools/tool-a",
-    ]
-
-    assert __targets_to_names(suit.targets.find("packages/package-a")) == [
-        "packages/package-a",
     ]

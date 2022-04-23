@@ -15,7 +15,7 @@ from box import Box
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
-    return "suit" in pyproject_data.get("tool", {})
+    return "target" in pyproject_data.get("tool", {}).get("suit", {})
 
 
 def _find_root_configuration(cwd: Optional[pathlib.Path] = None) -> pathlib.Path:
@@ -77,11 +77,10 @@ class SuitCollector:
                 project_data = tomli.load(found_project_file_io)
                 if not _pyproject_uses_suit(project_data):
                     continue
-                yield TargetConfig(
+                yield TargetConfig.from_mapping(
                     path=found_project_file.parent,
-                    data=project_data["tool"]["suit"],
+                    data=project_data["tool"]["suit"]["target"],
                 )
-
 
 
 @rich.repr.auto()

@@ -1,2 +1,2 @@
-[tool.suit.target.scripts]
+[tool.suit.target]
 hello = "echo Hello!"
