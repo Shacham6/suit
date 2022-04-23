@@ -12,10 +12,14 @@ from rich.console import Group
 from rich.padding import Padding
 from rich.table import Column, Table
 from rich.text import Text
-from suit.cli.executor import ExecutionPlanStage, ScriptFailedError, TargetScriptExecutor
+
+
+# from suit.cli.executor import ExecutionPlanStage, ScriptFailedError, TargetScriptExecutor
 from suit.collector import SuitCollector
 from suit.console import console
 from suit.scripts.resolver import resolve_scripts
+
+from .executor import CLIExecutor
 
 
 @click.group(
@@ -88,21 +92,16 @@ def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry
         raise click.UsageError("Must provide scripts to run!")
     suit = SuitCollector.find_root().collect()
 
-    found = []
     for script_name in scripts:
         for target_name, target in suit.targets.items():
             if not target_patterns.match(target_name):
                 continue
-            for target_script_name, target_script in target.scripts.items():
+            for target_script_name, target_script in resolve_scripts(suit, target).items():
                 if script_name != target_script_name:
                     continue
 
-                # target_script.execute()
-                found.append(ExecutionPlanStage(target_name, target_script_name, target_script))
-    try:
-        TargetScriptExecutor(found).execute(is_dry_run=is_dry_run)
-    except ScriptFailedError as script_failed:
-        sys.exit(script_failed.return_code)
+                executor = CLIExecutor(is_dry_run=is_dry_run)
+                executor.execute(target_script)
 
 
 class _Patterns:
