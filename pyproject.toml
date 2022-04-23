@@ -1,5 +1,5 @@
 [tool.suit-target.scripts]
-prepare_dev = """
+prepare-dev = """
 pip install -r {root.path}/requirements-dev.txt
 """
 
