@@ -2,7 +2,7 @@ import pathlib
 from typing import Any, Mapping
 
 import pytest
-from suit.targets import ScriptRefSpec, ShellScriptSpec, TargetConfig, TargetConfigData
+from suit.targets import CompositeScriptSpec, ScriptRefSpec, ShellScriptSpec, TargetConfig, TargetConfigData
 
 
 @pytest.mark.parametrize(
@@ -31,6 +31,19 @@ from suit.targets import ScriptRefSpec, ShellScriptSpec, TargetConfig, TargetCon
                 scripts={
                     "format-black": ShellScriptSpec("black"),
                     "format": ScriptRefSpec("format-black"),
+                }
+            ),
+        ),
+        (
+            {"scripts": {"lint": ["pylint", "flake8"]}},
+            TargetConfigData(
+                scripts={
+                    "lint": CompositeScriptSpec(
+                        [
+                            ShellScriptSpec("pylint"),
+                            ShellScriptSpec("flake8"),
+                        ]
+                    )
                 }
             ),
         ),
