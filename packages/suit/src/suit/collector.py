@@ -7,6 +7,7 @@ import weakref
 from dataclasses import dataclass
 from subprocess import PIPE, Popen
 from typing import IO, Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional, TypedDict, cast
+from .targets import TargetConfig
 
 import rich.repr
 import tomli
@@ -81,15 +82,6 @@ class SuitCollector:
                     data=project_data["tool"]["suit"],
                 )
 
-
-@dataclass
-class TargetConfig:
-    """
-    A project target.
-    """
-
-    path: pathlib.Path
-    data: Mapping[str, Any]
 
 
 @rich.repr.auto()
