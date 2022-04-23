@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
@@ -21,7 +21,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements-dev.txt -e packages/suit
+          pip install -r requirements-dev.txt
+          pip install -e packages/suit
 
       - name: Check code quality
         run: |
