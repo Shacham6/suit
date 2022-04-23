@@ -25,5 +25,5 @@ def _resolve_script(
     kwargs = {"name": script_name, "specs": script_spec, "suit": suit, "target": target_config}
     for script_spec_cls, script_cls in __TYPES.items():
         if isinstance(script_spec, script_spec_cls):
-            script_cls(**kwargs)
+            return script_cls(**kwargs)
     raise ValueError()

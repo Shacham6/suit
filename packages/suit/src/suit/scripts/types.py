@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import abc
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Generic, TypeVar
-from suit.targets import ShellScriptSpec, TargetConfig
+from typing import Any, Generic, Mapping, TypeVar
+
 from suit.collector import SuitConfig
+from suit.targets import CompositeScriptSpec, ScriptRefSpec, ShellScriptSpec, TargetConfig
 
 _T = TypeVar("_T")
 
@@ -29,8 +30,28 @@ class ScriptExecutor(metaclass=abc.ABCMeta):
     def handle_shell_script(self, shell_script: ShellScript):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def handle_ref_script(self, ref_script: RefScript):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def handle_composite_script(self, composite_script: CompositeScript):
+        raise NotImplementedError
+
 
 @dataclass
 class ShellScript(_ScriptBase[ShellScriptSpec]):
     def accept(self, executor: ScriptExecutor):
         return executor.handle_shell_script(self)
+
+
+@dataclass
+class RefScript(_ScriptBase[ScriptRefSpec]):
+    def accept(self, executor: ScriptExecutor):
+        return executor.handle_ref_script(self)
+
+
+@dataclass
+class CompositeScript(_ScriptBase[CompositeScriptSpec]):
+    def accept(self, executor: ScriptExecutor):
+        return executor.handle_composite_script(self)
