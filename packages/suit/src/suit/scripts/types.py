@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Any, Generic, Mapping, TypeVar
 
 from suit.collector import SuitConfig
-from suit.targets import CompositeScriptSpec, ScriptRefSpec, ShellScriptSpec, TargetConfig
+from suit.targets import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec, TargetConfig
 
 _T = TypeVar("_T")
 
@@ -46,7 +46,7 @@ class ShellScript(_ScriptBase[ShellScriptSpec]):
 
 
 @dataclass
-class RefScript(_ScriptBase[ScriptRefSpec]):
+class RefScript(_ScriptBase[RefScriptSpec]):
     def accept(self, executor: ScriptExecutor):
         return executor.handle_ref_script(self)
 

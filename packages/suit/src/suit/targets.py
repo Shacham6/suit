@@ -17,7 +17,7 @@ class ShellScriptSpec(ScriptSpec):
 
 
 @dataclass
-class ScriptRefSpec(ScriptSpec):
+class RefScriptSpec(ScriptSpec):
     ref: str
     args: Mapping[str, Any] = field(default_factory=dict)
 
@@ -57,7 +57,7 @@ def _process_script(
         return ShellScriptSpec(script_input["cmd"], script_input.get("args", {}))
 
     if "ref" in script_input and isinstance(script_input["ref"], str):
-        return ScriptRefSpec(script_input["ref"], script_input.get("args", {}))
+        return RefScriptSpec(script_input["ref"], script_input.get("args", {}))
 
     if "scripts" in script_input and isinstance(script_input["scripts"], (list, tuple)):
         return CompositeScriptSpec(
