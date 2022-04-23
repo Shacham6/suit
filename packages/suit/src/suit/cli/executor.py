@@ -56,10 +56,7 @@ class CLIExecutor(ScriptExecutor):
     def handle_composite_script(self, composite_script: CompositeScript):
         for index, raw_script in enumerate(composite_script.specs.scripts):
             script = resolve_script(
-                composite_script.suit,
-                composite_script.target,
-                f"{composite_script.name}[{index}]",
-                raw_script
+                composite_script.suit, composite_script.target, f"{composite_script.name}[{index}]", raw_script
             )
             self.execute(script)
 
