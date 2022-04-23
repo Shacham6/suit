@@ -14,10 +14,16 @@ def resolve_scripts(suit: SuitConfig, target_config: TargetConfig) -> Mapping[st
     }
 
 
+__TYPES = {
+    ShellScriptSpec: ShellScript,
+}
+
+
 def _resolve_script(
     suit: SuitConfig, target_config: TargetConfig, script_name: str, script_spec: ScriptSpec
 ) -> _ScriptBase:
     kwargs = {"name": script_name, "specs": script_spec, "suit": suit, "target": target_config}
-    if isinstance(script_spec, ShellScriptSpec):
-        return ShellScript(**kwargs)
+    for script_spec_cls, script_cls in __TYPES.items():
+        if isinstance(script_spec, script_spec_cls):
+            script_cls(**kwargs)
     raise ValueError()
