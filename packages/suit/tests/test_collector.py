@@ -1,18 +1,10 @@
 import io
-import pathlib
 from typing import Any, Mapping
 from unittest.mock import MagicMock
 
 import pytest
 import toml
-from suit.collector import (
-    RootDirectoryNotFound,
-    SuitCollector,
-    SuitConfig,
-    _find_root_configuration,
-    _pyproject_uses_suit,
-)
-from suit.targets import TargetConfig, TargetConfigData
+from suit.collector import RootDirectoryNotFound, SuitCollector, _find_root_configuration, _pyproject_uses_suit
 
 
 def pyproject_toml_file_mock(*, path: str, content: Mapping[str, Any]) -> MagicMock:
@@ -84,9 +76,3 @@ def test_find_root_directory_of_project_raises_when_not_found():
     with pytest.raises(RootDirectoryNotFound) as result:
         _find_root_configuration(starting_path)
     assert result.value.searched_paths == [starting_path, a, b, c]
-
-
-def test_targets_sorted_relatively_to_root():
-    target_config = TargetConfig(pathlib.Path("root/packages/package-a"), TargetConfigData())
-    suit_config = SuitConfig(pathlib.Path("root/"), {}, [target_config])
-    assert suit_config.targets == {"packages/package-a": target_config}
