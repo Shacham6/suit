@@ -12,10 +12,10 @@ def resolve_scripts(suit: SuitConfig, target_config: TargetConfig) -> Mapping[st
 
     for inheritance_name in target_config.data.inherit:
         for script_name, inherited_script in suit.project_config.templates[inheritance_name].scripts.items():
-            target_scripts[script_name] = _resolve_script(suit, target_config, script_name, inherited_script)
+            target_scripts[script_name] = resolve_script(suit, target_config, script_name, inherited_script)
 
     for script_name, inline_script in target_config.data.scripts.items():
-        target_scripts[script_name] = _resolve_script(suit, target_config, script_name, inline_script)
+        target_scripts[script_name] = resolve_script(suit, target_config, script_name, inline_script)
 
     return target_scripts
 
@@ -27,7 +27,7 @@ __TYPES = {
 }
 
 
-def _resolve_script(
+def resolve_script(
     suit: SuitConfig, target_config: TargetConfig, script_name: str, script_spec: ScriptSpec
 ) -> _ScriptBase:
     kwargs = {"name": script_name, "specs": script_spec, "suit": suit, "target": target_config}

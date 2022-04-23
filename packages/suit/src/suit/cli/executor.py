@@ -5,6 +5,7 @@ from box import Box
 from rich.text import Text
 from suit.console import console
 from suit.scripts.types import CompositeScript, RefScript, ScriptExecutor, ShellScript
+from suit.scripts.resolver import resolve_scripts, resolve_script
 
 
 class CLIExecutor(ScriptExecutor):
@@ -49,10 +50,18 @@ class CLIExecutor(ScriptExecutor):
             raise ScriptFailedError(target_name, shell_script.name, return_code)
 
     def handle_ref_script(self, ref_script: RefScript):
-        return super().handle_ref_script(ref_script)
+        scripts = resolve_scripts(ref_script.suit, ref_script.target)
+        self.execute(scripts[ref_script.specs.ref])
 
     def handle_composite_script(self, composite_script: CompositeScript):
-        return super().handle_composite_script(composite_script)
+        for index, raw_script in enumerate(composite_script.specs.scripts):
+            script = resolve_script(
+                composite_script.suit,
+                composite_script.target,
+                f"{composite_script.name}[{index}]",
+                raw_script
+            )
+            self.execute(script)
 
 
 class ScriptFailedError(Exception):
