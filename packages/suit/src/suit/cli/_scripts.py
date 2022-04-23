@@ -13,7 +13,7 @@ from rich.padding import Padding
 from rich.table import Column, Table
 from rich.text import Text
 from suit.cli.executor import ExecutionPlanStage, ScriptFailedError, TargetScriptExecutor
-from suit.collector import SuitCollector, TargetScript
+from suit.collector import SuitCollector
 from suit.console import console
 
 
@@ -42,6 +42,7 @@ def __to_patterns(ctx: click.Context, param: click.Parameter, value: Tuple[str, 
     callback=__to_patterns,
 )
 def cli_list_scripts(target_patterns: _Patterns, should_print_json: bool = False):
+    pass
     suit = SuitCollector.find_root().collect()
     scripts = {}
 

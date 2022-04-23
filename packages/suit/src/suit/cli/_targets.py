@@ -22,15 +22,15 @@ def cli_list_targets(raw_print: bool):
     suit = SuitCollector.find_root().collect()
 
     if raw_print:
-        for _, target in suit.targets:
-            console.print(target.name)
+        for target_name in suit.targets:
+            console.print(target_name)
         return
 
     table = Table(
-        Column("Target", justify="center", style="magenta"),
+        Column("Target", style="magenta"),
         show_edge=True,
         box=rich.table.box.SIMPLE,
     )
-    for _, target in suit.targets.items():
-        table.add_row(target.name)
+    for target_name in suit.targets:
+        table.add_row(target_name)
     console.print(table)

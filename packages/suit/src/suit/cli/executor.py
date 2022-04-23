@@ -1,15 +1,14 @@
-from typing import Iterable, NamedTuple, Tuple
+from typing import Any, Iterable, NamedTuple, Tuple
 
 from rich.text import Text
 
-from ..collector import TargetScript
 from ..console import console
 
 
 class ExecutionPlanStage(NamedTuple):
     target: str
     script_name: str
-    script: TargetScript
+    script: Any
 
 
 class TargetScriptExecutor:
