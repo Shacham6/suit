@@ -97,7 +97,10 @@ class SuitConfig:
     ):
         self.__root = root
         self.__project_config = project_config
-        self.__targets = targets
+        self.__targets = {
+            str(target.path.relative_to(root)): target
+            for target in targets
+        }
         self.__templates = project_config.get("templates", {})
 
     @property
@@ -109,7 +112,7 @@ class SuitConfig:
         return self.__project_config
 
     @property
-    def targets(self) -> List[TargetConfig]:
+    def targets(self) -> Mapping[str, TargetConfig]:
         return self.__targets
 
     @property

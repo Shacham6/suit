@@ -22,7 +22,7 @@ def cli_list_targets(raw_print: bool):
     suit = SuitCollector.find_root().collect()
 
     if raw_print:
-        for _, target in suit.targets.items():
+        for _, target in suit.targets:
             console.print(target.name)
         return
 
