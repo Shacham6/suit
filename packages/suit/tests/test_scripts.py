@@ -2,11 +2,11 @@ import io
 import pathlib
 from typing import Any, Iterable, List, Mapping, cast
 from unittest.mock import MagicMock
-from mockitup import allow
 
 import pytest
 import toml
 from box import Box
+from mockitup import allow
 from suit.collector import (
     RootDirectoryNotFound,
     Suit,
