@@ -12,7 +12,7 @@ from .specs import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec
 _T = TypeVar("_T")
 
 
-@dataclass(kw_only=True)
+@dataclass
 class _ScriptBase(Generic[_T], metaclass=abc.ABCMeta):
     name: str
     specs: _T
