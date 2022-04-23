@@ -42,14 +42,13 @@ def __to_patterns(ctx: click.Context, param: click.Parameter, value: Tuple[str, 
     callback=__to_patterns,
 )
 def cli_list_scripts(target_patterns: _Patterns, should_print_json: bool = False):
-    pass
     suit = SuitCollector.find_root().collect()
     scripts = {}
 
     for target_name, target in suit.targets.items():
         if not target_patterns.match(target_name):
             continue
-        for script_name in target.scripts:
+        for script_name in target.data.scripts:
             scripts.setdefault(script_name, []).append(target_name)
 
     if should_print_json:

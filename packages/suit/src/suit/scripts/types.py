@@ -5,7 +5,9 @@ from dataclasses import dataclass, field
 from typing import Any, Generic, Mapping, TypeVar
 
 from suit.collector import SuitConfig
-from suit.targets import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec, TargetConfig
+from suit.targets import TargetConfig
+
+from .specs import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec
 
 _T = TypeVar("_T")
 

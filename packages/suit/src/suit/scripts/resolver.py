@@ -3,7 +3,7 @@ from typing import Mapping
 from suit.collector import SuitConfig, TargetConfig
 
 from .types import _ScriptBase, CompositeScript, RefScript, ShellScript
-from suit.targets import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec, ScriptSpec
+from .specs import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec, ScriptSpec
 
 
 def resolve_scripts(suit: SuitConfig, target_config: TargetConfig) -> Mapping[str, _ScriptBase]:

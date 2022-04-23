@@ -2,7 +2,8 @@ import pathlib
 from typing import Any, Mapping
 
 import pytest
-from suit.targets import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec, TargetConfig, TargetConfigData
+from suit.targets import TargetConfig, TargetConfigData
+from suit.scripts.specs import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec
 
 
 @pytest.mark.parametrize(

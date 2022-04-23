@@ -7,11 +7,12 @@ import weakref
 from dataclasses import dataclass
 from subprocess import PIPE, Popen
 from typing import IO, Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional, TypedDict, cast
-from .targets import TargetConfig
 
 import rich.repr
 import tomli
 from box import Box
+
+from .targets import TargetConfig
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
@@ -97,10 +98,7 @@ class SuitConfig:
     ):
         self.__root = root
         self.__project_config = project_config
-        self.__targets = {
-            str(target.path.relative_to(root)): target
-            for target in targets
-        }
+        self.__targets = {str(target.path.relative_to(root)): target for target in targets}
         self.__templates = project_config.get("templates", {})
 
     @property

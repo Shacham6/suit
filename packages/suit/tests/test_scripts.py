@@ -3,12 +3,12 @@ from typing import Mapping
 
 import pytest
 from suit.collector import SuitConfig
-from suit.scripts import ShellScript, resolve_scripts
-from suit.scripts.types import CompositeScript
-from suit.targets import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec, TargetConfig, TargetConfigData
+from suit.scripts.resolver import ShellScript, resolve_scripts
+from suit.scripts.types import CompositeScript, CompositeScriptSpec, RefScriptSpec, ShellScriptSpec
+from suit.targets import TargetConfig, TargetConfigData
 
 
-def test_resolve_scripts():
+def test_resolve_scripts_converts_to_final_objects():
     target_config = TargetConfig(
         pathlib.Path("root/target"),
         TargetConfigData(
@@ -44,3 +44,4 @@ def test_resolve_scripts():
             target=target_config,
         ),
     }
+
