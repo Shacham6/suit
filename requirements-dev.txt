@@ -1,4 +1,3 @@
 black
 pylint
 pytest
-build

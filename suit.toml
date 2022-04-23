@@ -1,4 +1,5 @@
 [suit.templates.package.scripts]
+## Quality
 format = [
   {ref = 'format:black'},
 ]
@@ -11,4 +12,18 @@ lint = [
 'lint:black' = 'black --check --config "{root.path}/pyproject.toml" "{local.path}/{args.package_dir}"'
 'lint:pylint' = 'pylint --rcfile="{root.path}/.pylintrc" "{local.path}/{args.package_dir}"'
 
-build = 'python -m build "{local.path}"'
+## Deployment
+build = [
+  'pip install build',
+  'python -m build "{local.path}"',
+]
+
+publish = [
+  'pip install twine',
+  'twine upload --non-interactive --disable-progress-bar',
+]
+
+deploy = [
+  {ref = 'build'},
+  {ref = 'publish'},
+]
