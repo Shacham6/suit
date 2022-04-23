@@ -1,16 +1,14 @@
 import io
 import pathlib
-from typing import Any, Iterable, List, Mapping, cast
+from typing import Any, Mapping
 from unittest.mock import MagicMock
 
 import pytest
 import toml
-from box import Box
 from suit.collector import (
     RootDirectoryNotFound,
-    SuitConfig,
     SuitCollector,
-    Target,
+    SuitConfig,
     _find_root_configuration,
     _pyproject_uses_suit,
 )
