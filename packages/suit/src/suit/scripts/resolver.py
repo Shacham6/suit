@@ -2,16 +2,22 @@ from typing import Mapping
 
 from suit.collector import SuitConfig, TargetConfig
 
-from .types import _ScriptBase, CompositeScript, RefScript, ShellScript
-from .specs import CompositeScriptSpec, RefScriptSpec, ShellScriptSpec, ScriptSpec
+from .specs import CompositeScriptSpec, RefScriptSpec, ScriptSpec, ShellScriptSpec
+from .types import CompositeScript, RefScript, ShellScript, _ScriptBase
 
 
 def resolve_scripts(suit: SuitConfig, target_config: TargetConfig) -> Mapping[str, _ScriptBase]:
     """Resolve the scripts by their types."""
-    return {
-        script_name: _resolve_script(suit, target_config, script_name, script)
-        for script_name, script in target_config.data.scripts.items()
-    }
+    target_scripts = {}
+
+    for inheritance_name in target_config.data.inherit:
+        for script_name, inherited_script in suit.project_config.templates[inheritance_name].scripts.items():
+            target_scripts[script_name] = _resolve_script(suit, target_config, script_name, inherited_script)
+
+    for script_name, inline_script in target_config.data.scripts.items():
+        target_scripts[script_name] = _resolve_script(suit, target_config, script_name, inline_script)
+
+    return target_scripts
 
 
 __TYPES = {
