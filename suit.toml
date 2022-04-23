@@ -20,7 +20,7 @@ build = [
 
 publish = [
   'pip install twine',
-  'twine upload --non-interactive --disable-progress-bar',
+  'twine upload --non-interactive --disable-progress-bar {local.path}/dist/*',
 ]
 
 deploy = [
