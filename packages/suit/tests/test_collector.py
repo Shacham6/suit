@@ -8,13 +8,13 @@ import toml
 from box import Box
 from suit.collector import (
     RootDirectoryNotFound,
-    Suit,
+    SuitConfig,
     SuitCollector,
     Target,
     TargetScript,
     _find_root_configuration,
     _pyproject_uses_suit,
-    _TargetConfig,
+    TargetConfig,
 )
 
 
@@ -45,7 +45,7 @@ def test_find_pyproject_toml_with_suit_configured():
     collector = SuitCollector(root, {})
     results = collector.collect()
     assert results.root == root
-    assert results.raw_targets == [_TargetConfig(path=suit_project_file.parent, data={})]
+    assert results.raw_targets == [TargetConfig(path=suit_project_file.parent, data={})]
 
 
 def test_is_pyproject_uses_suit():
@@ -86,12 +86,12 @@ def test_find_root_directory_of_project_raises_when_not_found():
 
 
 def test_targets_calculation_relative_to_root():
-    suit = Suit(
+    suit = SuitConfig(
         root=pathlib.Path("root/"),
         project_config={},
         raw_targets=[
-            _TargetConfig(pathlib.Path("root/packages/package-a"), {}),
-            _TargetConfig(pathlib.Path("root/packages/package-b"), {}),
+            TargetConfig(pathlib.Path("root/packages/package-a"), {}),
+            TargetConfig(pathlib.Path("root/packages/package-b"), {}),
         ],
     )
     assert list(suit.targets.keys()) == [
@@ -105,13 +105,13 @@ def __targets_to_names(targets: Iterable[Target]) -> List[str]:
 
 
 def test_filter_targets():
-    suit = Suit(
+    suit = SuitConfig(
         root=pathlib.Path("root/"),
         project_config={},
         raw_targets=[
-            _TargetConfig(pathlib.Path("root/packages/package-a"), {}),
-            _TargetConfig(pathlib.Path("root/packages/package-b"), {}),
-            _TargetConfig(pathlib.Path("root/tools/tool-a"), {}),
+            TargetConfig(pathlib.Path("root/packages/package-a"), {}),
+            TargetConfig(pathlib.Path("root/packages/package-b"), {}),
+            TargetConfig(pathlib.Path("root/tools/tool-a"), {}),
         ],
     )
     assert __targets_to_names(suit.targets.find("packages")) == [

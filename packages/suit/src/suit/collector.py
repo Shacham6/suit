@@ -61,9 +61,9 @@ class SuitCollector:
             local_configurations=local_configurations["suit"],
         )
 
-    def collect(self) -> Suit:
+    def collect(self) -> SuitConfig:
         """Collect all targets in the directory structure"""
-        return Suit(
+        return SuitConfig(
             self.__root,
             project_config=self.__local_config,
             raw_targets=list(self.__collect_targets()),
@@ -75,13 +75,13 @@ class SuitCollector:
                 project_data = tomli.load(found_project_file_io)
                 if not _pyproject_uses_suit(project_data):
                     continue
-                yield _TargetConfig(
+                yield TargetConfig(
                     path=found_project_file.parent,
                     data=project_data["tool"]["suit"],
                 )
 
 
-class _TargetConfig(NamedTuple):
+class TargetConfig(NamedTuple):
     """
     A project target.
     """
@@ -91,7 +91,7 @@ class _TargetConfig(NamedTuple):
 
 
 @rich.repr.auto()
-class Suit:
+class SuitConfig:
     """
     The general suit configurations.
     """
@@ -100,7 +100,7 @@ class Suit:
         self,
         root: pathlib.Path,
         project_config: Mapping[str, Any],
-        raw_targets: List[_TargetConfig],
+        raw_targets: List[TargetConfig],
     ):
         self.__root = root
         self.__project_config = project_config
@@ -117,7 +117,7 @@ class Suit:
         return self.__project_config
 
     @property
-    def raw_targets(self) -> List[_TargetConfig]:
+    def raw_targets(self) -> List[TargetConfig]:
         return self.__raw_targets
 
     @property
@@ -135,7 +135,7 @@ class Suit:
 
 
 class Target:
-    def __init__(self, name: str, suit: Suit, raw_target: _TargetConfig):
+    def __init__(self, name: str, suit: SuitConfig, raw_target: TargetConfig):
         self.__name = name
         self.__suit = suit
         self.__raw_target = raw_target
@@ -170,7 +170,7 @@ class TargetScript(NamedTuple):
     args: Box
 
     @staticmethod
-    def compile_inline(raw_cmd: str, suit: Suit, raw_target: _TargetConfig) -> TargetScript:
+    def compile_inline(raw_cmd: str, suit: SuitConfig, raw_target: TargetConfig) -> TargetScript:
         return TargetScript(
             cmd=raw_cmd,
             root=Box(
@@ -195,14 +195,14 @@ class TargetScript(NamedTuple):
 class Targets(Mapping[str, Target]):
     def __init__(
         self,
-        suit_ref: weakref.ReferenceType[Suit],
+        suit_ref: weakref.ReferenceType[SuitConfig],
     ):
         self.__suit_ref = suit_ref
 
         suit = self.__follow_suit_ref()
         self.__canonized = {str(raw_target.path.relative_to(suit.root)): raw_target for raw_target in suit.raw_targets}
 
-    def __follow_suit_ref(self) -> Suit:
+    def __follow_suit_ref(self) -> SuitConfig:
         if not (suit := self.__suit_ref()):
             raise ValueError("Provided suit reference invalid")
         return suit
