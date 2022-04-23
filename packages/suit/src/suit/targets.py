@@ -11,7 +11,13 @@ class ShellScriptSpec:
     args: Mapping[str, Any] = field(default_factory=dict)
 
 
-ScriptSpec = ShellScriptSpec
+@dataclass
+class CompositeScriptSpec:
+    scripts: List[ScriptSpec]
+    args: Mapping[str, Any] = field(default_factory=dict)
+
+
+ScriptSpec = Union[CompositeScriptSpec, ShellScriptSpec]
 
 
 def _build_script(script_data: Union[str, Mapping[str, Any]]):
@@ -45,14 +51,16 @@ class TargetConfigData:
 
         if not scripts:
             scripts = {}
-        object.__setattr__(
-            self,
-            "scripts",
-            {
-                script_name: _build_script(script) if not isinstance(script, ScriptSpec) else script
-                for script_name, script in scripts.items()
-            },
-        )
+
+        processed_scripts = {}
+        for script_name, script_input in scripts.items():
+            if isinstance(script_input, ScriptSpec):
+                processed_scripts[script_name] = script_input
+                continue
+
+            processed_scripts[script_name] = _build_script(script_input)
+
+        object.__setattr__(self, "scripts", processed_scripts)
 
 
 @dataclass
