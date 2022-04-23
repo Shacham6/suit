@@ -5,6 +5,7 @@ from suit.collector import SuitConfig, SuitCollector, Target, TargetConfig
 from suit.scripts import resolve_scripts, ShellScript
 
 
+@pytest.mark.skip("not yet")
 def test_resolve_scripts():
     target_config = TargetConfig(
         pathlib.Path("root/packages/package-a"),

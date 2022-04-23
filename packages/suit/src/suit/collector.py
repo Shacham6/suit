@@ -4,8 +4,9 @@ import pathlib
 import re
 import shlex
 import weakref
+from dataclasses import dataclass
 from subprocess import PIPE, Popen
-from typing import IO, Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional, cast
+from typing import IO, Any, Iterable, Iterator, List, Mapping, NamedTuple, Optional, TypedDict, cast
 
 import rich.repr
 import tomli
@@ -81,7 +82,8 @@ class SuitCollector:
                 )
 
 
-class TargetConfig(NamedTuple):
+@dataclass
+class TargetConfig:
     """
     A project target.
     """
