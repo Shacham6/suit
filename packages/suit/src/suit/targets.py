@@ -29,16 +29,19 @@ def _process_scripts(scripts: Optional[Mapping[str, Union[str, Mapping[str, Any]
             processed_scripts[script_name] = script_input
             continue
 
-        processed_scripts[script_name] = _build_script(script_input)
+        if isinstance(script_input, str):
+            processed_scripts[script_name] = ShellScriptSpec(script_input, {})
+            continue
+
+        if "cmd" in script_input and isinstance(script_input["cmd"], str):
+            processed_scripts[script_name] = ShellScriptSpec(script_input["cmd"], script_input.get("args", {}))
+            continue
+
+        raise ValueError(script_input)
+
     return processed_scripts
 
 
-def _build_script(script_data: Union[str, Mapping[str, Any]]):
-    if isinstance(script_data, str):
-        return ShellScriptSpec(script_data, {})
-    if "cmd" in script_data and isinstance(script_data["cmd"], str):
-        return ShellScriptSpec(script_data["cmd"], script_data.get("args", {}))
-    raise ValueError(f"Can't build script from {script_data}")
 
 
 @dataclass(init=False, frozen=True)
