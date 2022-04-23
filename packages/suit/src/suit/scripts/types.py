@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 import abc
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any, Mapping, Generic, TypeVar
+from suit.targets import ShellScriptSpec, TargetConfig
+from suit.collector import SuitConfig
+
+_T = TypeVar("_T")
 
 
-class _ScriptBase(metaclass=abc.ABCMeta):
+@dataclass(kw_only=True)
+class _ScriptBase(Generic[_T], metaclass=abc.ABCMeta):
+    name: str
+    specs: _T
+    suit: SuitConfig
+    target: TargetConfig
+
     @abc.abstractmethod
     def accept(self, executor: ScriptExecutor):
         raise NotImplementedError
@@ -18,20 +29,8 @@ class ScriptExecutor(metaclass=abc.ABCMeta):
     def handle_shell_script(self, shell_script: ShellScript):
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def handle_composite_script(self, composite_script: CompositeScript):
-        raise NotImplementedError
-
 
 @dataclass
-class ShellScript(_ScriptBase):
-    cmd: str
-
-    def accept(self, visitor: ScriptExecutor):
-        return visitor.handle_shell_script(self)
-
-
-@dataclass
-class CompositeScript(_ScriptBase):
+class ShellScript(_ScriptBase[ShellScriptSpec]):
     def accept(self, executor: ScriptExecutor):
-        return super().accept(executor)
+        return executor.handle_shell_script(self)

@@ -2,12 +2,22 @@ from typing import Mapping
 
 from suit.collector import SuitConfig, TargetConfig
 
-from .types import _ScriptBase
+from .types import _ScriptBase, ShellScript
+from suit.targets import ShellScriptSpec, ScriptSpec
 
 
 def resolve_scripts(suit: SuitConfig, target_config: TargetConfig) -> Mapping[str, _ScriptBase]:
     """Resolve the scripts by their types."""
-    scripts = {}
-    # for target in target_config.data[]:
-    #     pass
-    return scripts
+    return {
+        script_name: _resolve_script(suit, target_config, script_name, script)
+        for script_name, script in target_config.data.scripts.items()
+    }
+
+
+def _resolve_script(
+    suit: SuitConfig, target_config: TargetConfig, script_name: str, script_spec: ScriptSpec
+) -> _ScriptBase:
+    kwargs = {"name": script_name, "specs": script_spec, "suit": suit, "target": target_config}
+    if isinstance(script_spec, ShellScriptSpec):
+        return ShellScript(**kwargs)
+    raise ValueError()
