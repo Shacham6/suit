@@ -1,23 +1,31 @@
 from __future__ import annotations
 
+import abc
 import pathlib
 from dataclasses import dataclass, field
 from typing import Any, List, Mapping, Optional, Union
 
 
+class ScriptSpec(metaclass=abc.ABCMeta):
+    pass
+
+
 @dataclass
-class ShellScriptSpec:
+class ShellScriptSpec(ScriptSpec):
     cmd: str
     args: Mapping[str, Any] = field(default_factory=dict)
 
 
 @dataclass
-class CompositeScriptSpec:
-    scripts: List[ScriptSpec]
+class ScriptRefSpec(ScriptSpec):
+    ref: str
     args: Mapping[str, Any] = field(default_factory=dict)
 
 
-ScriptSpec = Union[CompositeScriptSpec, ShellScriptSpec]
+@dataclass
+class CompositeScriptSpec(ScriptSpec):
+    scripts: List[ScriptSpec]
+    args: Mapping[str, Any] = field(default_factory=dict)
 
 
 def _process_scripts(scripts: Optional[Mapping[str, Union[str, Mapping[str, Any], ScriptSpec]]]):
@@ -25,7 +33,7 @@ def _process_scripts(scripts: Optional[Mapping[str, Union[str, Mapping[str, Any]
         return {}
     processed_scripts = {}
     for script_name, script_input in scripts.items():
-        if isinstance(script_input, ScriptSpec):
+        if isinstance(script_input, (ScriptSpec)):
             processed_scripts[script_name] = script_input
             continue
 
@@ -37,11 +45,13 @@ def _process_scripts(scripts: Optional[Mapping[str, Union[str, Mapping[str, Any]
             processed_scripts[script_name] = ShellScriptSpec(script_input["cmd"], script_input.get("args", {}))
             continue
 
+        if "ref" in script_input and isinstance(script_input["ref"], str):
+            processed_scripts[script_name] = ScriptRefSpec(script_input["ref"], script_input.get("args", {}))
+            continue
+
         raise ValueError(script_input)
 
     return processed_scripts
-
-
 
 
 @dataclass(init=False, frozen=True)
