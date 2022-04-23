@@ -68,7 +68,7 @@ class SuitCollector:
         return SuitConfig(
             self.__root,
             project_config=self.__local_config,
-            raw_targets=list(self.__collect_targets()),
+            targets=list(self.__collect_targets()),
         )
 
     def __collect_targets(self):
@@ -93,12 +93,11 @@ class SuitConfig:
         self,
         root: pathlib.Path,
         project_config: Mapping[str, Any],
-        raw_targets: List[TargetConfig],
+        targets: List[TargetConfig],
     ):
         self.__root = root
         self.__project_config = project_config
-        self.__raw_targets = raw_targets
-        self.__targets = Targets(weakref.ref(self))
+        self.__targets = targets
         self.__templates = project_config.get("templates", {})
 
     @property
@@ -110,11 +109,7 @@ class SuitConfig:
         return self.__project_config
 
     @property
-    def raw_targets(self) -> List[TargetConfig]:
-        return self.__raw_targets
-
-    @property
-    def targets(self) -> Targets:
+    def targets(self) -> List[TargetConfig]:
         return self.__targets
 
     @property
@@ -124,121 +119,4 @@ class SuitConfig:
     def __rich_repr__(self) -> rich.repr.RichReprResult:
         yield "root", self.__root
         yield "project_config", self.__project_config
-        yield "raw_targets", self.__raw_targets
-
-
-class Target:
-    def __init__(self, name: str, suit: SuitConfig, raw_target: TargetConfig):
-        self.__name = name
-        self.__suit = suit
-        self.__raw_target = raw_target
-
-        raw_scripts_config = raw_target.data.get("target", {}).get("scripts", {})
-
-        scripts = {}
-        for script_name, value in raw_scripts_config.items():
-            scripts[script_name] = TargetScript.compile_inline(value, self.__suit, self.__raw_target)
-
-        for template_name in raw_target.data.get("target", {}).get("inherit", []):
-            if template_name not in suit.templates:
-                raise ValueError(f"Template {template_name!r} not found")
-            for script_name, value in suit.templates[template_name].get("scripts", {}).items():
-                scripts[script_name] = TargetScript.compile_inline(value, self.__suit, self.__raw_target)
-
-        self.__scripts = scripts
-
-    @property
-    def name(self) -> str:
-        return self.__name
-
-    @property
-    def scripts(self) -> Mapping[str, TargetScript]:
-        return self.__scripts
-
-
-class TargetScript(NamedTuple):
-    cmd: str
-    root: Box
-    local: Box
-    args: Box
-
-    @staticmethod
-    def compile_inline(raw_cmd: str, suit: SuitConfig, raw_target: TargetConfig) -> TargetScript:
-        return TargetScript(
-            cmd=raw_cmd,
-            root=Box(
-                path=suit.root,
-            ),
-            local=Box(
-                path=raw_target.path,
-            ),
-            args=Box(raw_target.data.get("target", {}).get("args", {})),
-        )
-
-    def execute(self) -> ScriptExecution:
-        return ScriptExecution(
-            Popen(
-                shlex.split(self.cmd.format(root=self.root, local=self.local, args=self.args)),
-                stdout=PIPE,
-                stderr=PIPE,
-            )
-        )
-
-
-class Targets(Mapping[str, Target]):
-    def __init__(
-        self,
-        suit_ref: weakref.ReferenceType[SuitConfig],
-    ):
-        self.__suit_ref = suit_ref
-
-        suit = self.__follow_suit_ref()
-        self.__canonized = {str(raw_target.path.relative_to(suit.root)): raw_target for raw_target in suit.raw_targets}
-
-    def __follow_suit_ref(self) -> SuitConfig:
-        if not (suit := self.__suit_ref()):
-            raise ValueError("Provided suit reference invalid")
-        return suit
-
-    def __getitem__(self, __k: str) -> Target:
-        return Target(__k, self.__follow_suit_ref(), self.__canonized[__k])
-
-    def __iter__(self) -> Iterator[str]:
-        return iter(self.__canonized)
-
-    def __len__(self) -> int:
-        return len(self.__canonized)
-
-    def find(self, pattern: str) -> Iterable[Target]:
-        re_pattern = re.compile(pattern)
-        return (
-            Target(
-                name,
-                self.__follow_suit_ref(),
-                self.__canonized[name],
-            )
-            for name in self.__canonized
-            if re_pattern.search(name)
-        )
-
-
-class ScriptExecution:
-    def __init__(self, process: Popen):
-        self.__process = process
-        self.__stdout = self.__process.stdout
-        self.__stderr = self.__process.stderr
-
-    @property
-    def stdout(self) -> IO[bytes]:
-        return cast(IO[bytes], self.__stdout)
-
-    @property
-    def stderr(self) -> IO[bytes]:
-        return cast(IO[bytes], self.__stderr)
-
-    def wait(self, timeout: Optional[float] = None):
-        return self.__process.wait(timeout)
-
-    @property
-    def returncode(self) -> int:
-        return self.__process.returncode
+        yield "targets", self.__targets

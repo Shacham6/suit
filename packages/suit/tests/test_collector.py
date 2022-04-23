@@ -45,7 +45,7 @@ def test_find_pyproject_toml_with_suit_configured():
     collector = SuitCollector(root, {})
     results = collector.collect()
     assert results.root == root
-    assert results.raw_targets == [
+    assert results.targets == [
         TargetConfig(
             path=suit_project_file.parent,
             data=TargetConfigData(),
@@ -89,18 +89,3 @@ def test_find_root_directory_of_project_raises_when_not_found():
     with pytest.raises(RootDirectoryNotFound) as result:
         _find_root_configuration(starting_path)
     assert result.value.searched_paths == [starting_path, a, b, c]
-
-
-def test_targets_calculation_relative_to_root():
-    suit = SuitConfig(
-        root=pathlib.Path("root/"),
-        project_config={},
-        raw_targets=[
-            TargetConfig(pathlib.Path("root/packages/package-a"), TargetConfigData()),
-            TargetConfig(pathlib.Path("root/packages/package-b"), TargetConfigData()),
-        ],
-    )
-    assert list(suit.targets.keys()) == [
-        "packages/package-a",
-        "packages/package-b",
-    ]
