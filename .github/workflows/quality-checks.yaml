@@ -29,4 +29,4 @@ jobs:
 
       - name: Check code quality
         run: |
-          pytest
+          suit run tests

@@ -29,6 +29,7 @@ inherit = ["package"]
 
 [tool.suit.target.args]
 package_dir = "src/suit"
+tests_dir = 'tests'
 
 [tool.suit.target.scripts]
 prepare-dev = "pip install -r {local.path}/requirements-dev.txt"

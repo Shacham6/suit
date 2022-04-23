@@ -12,6 +12,14 @@ lint = [
 'lint:black' = 'black --check --config "{root.path}/pyproject.toml" "{local.path}/{args.package_dir}"'
 'lint:pylint' = 'pylint --rcfile="{root.path}/.pylintrc" "{local.path}/{args.package_dir}"'
 
+'tests:install-dependencies' = 'pip install pytest'
+'tests:run' = 'pytest {local.path}/{args.tests_dir}'
+
+tests = [
+  {ref = 'tests:install-dependencies'},
+  {ref = 'tests:run'}
+]
+
 ## Deployment
 build = [
   'pip install build',
