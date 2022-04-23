@@ -4,7 +4,7 @@ import pathlib
 from typing import List, Mapping
 
 import rich.repr
-from pydantic import BaseModel, Field  # pylint: disable=no-name-in-module
+from pydantic import BaseModel, Field, validator  # pylint: disable=no-name-in-module
 
 from suit.scripts.specs import scripts_from_mapping
 
@@ -12,11 +12,15 @@ from .targets import ScriptSpec, TargetConfig
 
 
 class SuitTemplate(BaseModel):
-    __root__ = Mapping[str, ScriptSpec]
+    scripts: Mapping[str, ScriptSpec]
 
-    @classmethod
-    def __get_validators__(cls):
-        yield scripts_from_mapping
+    @validator("scripts", pre=True)
+    def validate_scripts(cls, v):
+        return scripts_from_mapping(v)
+
+    # @classmethod
+    # def __get_validators__(cls):
+    #     yield scripts_from_mapping
 
     class Config:
         arbitrary_types_allowed = True
@@ -24,6 +28,9 @@ class SuitTemplate(BaseModel):
 
 class ProjectConfig(BaseModel):
     templates: Mapping[str, SuitTemplate] = Field(default_factory=dict)
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 @rich.repr.auto()
