@@ -6,7 +6,7 @@ from typing import Any, List, Mapping, Optional
 import tomli
 
 from .targets import TargetConfig
-from .suit_config import SuitConfig, ProjectConfig
+from .config import SuitConfig, ProjectConfig
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:

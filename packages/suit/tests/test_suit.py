@@ -1,6 +1,6 @@
 import pathlib
 
-from suit.suit_config import SuitConfig, ProjectConfig
+from suit.config import SuitConfig, ProjectConfig
 from suit.scripts.specs import ShellScriptSpec
 from suit.targets import TargetConfig, TargetConfigData
 
@@ -17,11 +17,7 @@ def test_templates():
         ProjectConfig.parse_obj(
             {
                 "templates": {
-                    "package": {
-                        "scripts": {
-                            "black": "black"
-                        }
-                    },
+                    "package": {"scripts": {"black": "black"}},
                 }
             }
         ),
