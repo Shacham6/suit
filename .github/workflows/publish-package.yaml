@@ -4,6 +4,9 @@ on:
   release:
     types: [created]
 
+env:
+  SUIT_SCREEN_WIDTH: 120
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
