@@ -6,7 +6,7 @@ from typing import Any, List, Mapping, Optional
 import tomli
 
 from .targets import TargetConfig
-from .suit_config import SuitConfig
+from .suit_config import SuitConfig, ProjectConfig
 
 
 def _pyproject_uses_suit(pyproject_data: Mapping[str, Any]) -> bool:
@@ -62,7 +62,7 @@ class SuitCollector:
         """Collect all targets in the directory structure"""
         return SuitConfig(
             self.__root,
-            project_config=self.__local_config,
+            project_config=ProjectConfig.parse_obj(self.__local_config),
             targets=list(self.__collect_targets()),
         )
 
