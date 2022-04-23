@@ -3,7 +3,7 @@ name: Python package
 on: [push]
 
 env:
-  SUIT_SCREEN_WIDTH: 120
+  SUIT_SCREEN_WIDTH: 150
 
 jobs:
   build:

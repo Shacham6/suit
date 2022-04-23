@@ -1,11 +1,14 @@
 import shlex
 from subprocess import PIPE, Popen
 
+import rich.table
 from box import Box
+from rich.padding import Padding
+from rich.table import Column, Table
 from rich.text import Text
 from suit.console import console
+from suit.scripts.resolver import resolve_script, resolve_scripts
 from suit.scripts.types import CompositeScript, RefScript, ScriptExecutor, ShellScript
-from suit.scripts.resolver import resolve_scripts, resolve_script
 
 
 class CLIExecutor(ScriptExecutor):
@@ -30,20 +33,26 @@ class CLIExecutor(ScriptExecutor):
         process = Popen(shlex.split(full_command), encoding="utf-8", stdout=PIPE, stderr=PIPE)
         return_code = process.wait()
         for out_line in process.stdout:
-            out_text = Text.assemble(
-                ("OUT | ", "bold"),
-                out_line.rstrip("\n"),
+            t = Table(
+                Column(style="bold"),
+                box=rich.table.box.HEAVY_EDGE,
+                show_header=False,
+                show_edge=False,
+                border_style="bold",
             )
-            out_text.pad_left(4)
-            console.log(out_text)
+            t.add_row(Padding("OUT", (0, 0, 0, 4)), out_line.rstrip("\n"))
+            console.log(t)
 
         for err_line in process.stderr:
-            err_text = Text.assemble(
-                ("ERR | ", "red bold"),
-                err_line.rstrip("\n"),
+            t = Table(
+                Column(style="red bold"),
+                box=rich.table.box.HEAVY_EDGE,
+                show_header=False,
+                show_edge=False,
+                border_style="red bold",
             )
-            err_text.pad_left(4)
-            console.log(err_text)
+            t.add_row(Padding("ERR", (0, 0, 0, 4)), err_line.rstrip("\n"))
+            console.log(t)
 
         if return_code != 0:
             console.log(f"[red]Target script exited with return-code [bold]{return_code}[/][/]")
