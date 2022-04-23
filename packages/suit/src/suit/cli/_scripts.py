@@ -19,7 +19,7 @@ from suit.collector import SuitCollector
 from suit.console import console
 from suit.scripts.resolver import resolve_scripts
 
-from .executor import CLIExecutor
+from .executor import CLIExecutor, ScriptFailedError
 
 
 @click.group(
@@ -101,7 +101,10 @@ def cli_run_scripts(scripts: Tuple[str, ...], target_patterns: _Patterns, is_dry
                     continue
 
                 executor = CLIExecutor(is_dry_run=is_dry_run)
-                executor.execute(target_script)
+                try:
+                    executor.execute(target_script)
+                except ScriptFailedError as script_failure:
+                    sys.exit(script_failure.return_code)
 
 
 class _Patterns:
