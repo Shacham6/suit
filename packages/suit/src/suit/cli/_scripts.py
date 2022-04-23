@@ -15,6 +15,7 @@ from rich.text import Text
 from suit.cli.executor import ExecutionPlanStage, ScriptFailedError, TargetScriptExecutor
 from suit.collector import SuitCollector
 from suit.console import console
+from suit.scripts.resolver import resolve_scripts
 
 
 @click.group(
@@ -48,7 +49,8 @@ def cli_list_scripts(target_patterns: _Patterns, should_print_json: bool = False
     for target_name, target in suit.targets.items():
         if not target_patterns.match(target_name):
             continue
-        for script_name in target.data.scripts:
+
+        for script_name in resolve_scripts(suit, target):
             scripts.setdefault(script_name, []).append(target_name)
 
     if should_print_json:
