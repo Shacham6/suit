@@ -1,2 +1,2 @@
-[tool.suit.target.scripts]
-hello = "echo Hello!"
+[tool.suit.target]
+inherit = ["helloer"]
