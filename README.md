@@ -1,3 +1,5 @@
+![Logo](https://github.com/shacham6/suit/raw/master/assets/main-logo.svg)
+
 # Suit
 
 Suit is a simple, Pythonic way to handle generic task management for your repository.
