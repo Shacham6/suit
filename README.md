@@ -111,3 +111,13 @@ And in the `pyproject.toml` the previously held those scripts, the following can
 [tool.suit.target]
 inherit = ['helloer']
 ```
+
+## Roadmap
+
+Suit is not close to be done. There are plenty of great ideas in where this project will go.
+
+Among the best ones:
+
+- Configurable `virtualenv`s management.
+- `pre-commit-hooks` integration.
+- Parallelization

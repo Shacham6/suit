@@ -1,23 +1,14 @@
 [suit.templates.package.scripts]
-'format' = [
+format = [
   {ref = 'format:black'},
 ]
 'format:black' = 'black --config "{root.path}/pyproject.toml" "{local.path}/{args.package_dir}"'
 
-'lint' = [
+lint = [
   {ref = "lint:black"},
   {ref = "lint:pylint"},
 ]
 'lint:black' = 'black --check --config "{root.path}/pyproject.toml" "{local.path}/{args.package_dir}"'
 'lint:pylint' = 'pylint --rcfile="{root.path}/.pylintrc" "{local.path}/{args.package_dir}"'
 
-[suit.templates.helloer.scripts]
-but-with-shouting = 'echo "!!"'
-hello = 'echo "Hello"'
-world = 'echo "world"'
-
-hello-world = [
-  {ref = 'hello'},
-  {ref = 'world'},
-  {ref = 'but-with-shouting'},
-]
+build = 'python -m build "{local.path}"'

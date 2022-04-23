@@ -1,2 +1,0 @@
-[tool.suit.target]
-inherit = ["helloer"]
