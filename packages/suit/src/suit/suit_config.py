@@ -1,16 +1,25 @@
 from __future__ import annotations
 
 import pathlib
-from typing import Any, List, Mapping
+from typing import List, Mapping
 
 import rich.repr
 from pydantic import BaseModel, Field  # pylint: disable=no-name-in-module
 
-from .targets import TargetConfig
+from suit.scripts.specs import scripts_from_mapping
+
+from .targets import ScriptSpec, TargetConfig
 
 
 class SuitTemplate(BaseModel):
-    pass
+    __root__ = Mapping[str, ScriptSpec]
+
+    @classmethod
+    def __get_validators__(cls):
+        yield scripts_from_mapping
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class ProjectConfig(BaseModel):
